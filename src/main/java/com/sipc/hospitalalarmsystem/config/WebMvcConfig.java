@@ -1,7 +1,5 @@
 package com.sipc.hospitalalarmsystem.config;
-
-
-import com.sipc.sweatpear.aop.JwtInterceptor;
+import com.sipc.hospitalalarmsystem.aop.JwtInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

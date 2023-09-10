@@ -1,6 +1,5 @@
 package com.sipc.hospitalalarmsystem.util;
 
-import com.sipc.sweatpear.websocket.model.po.PrivateChatLog;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -111,15 +110,15 @@ public class RedisUtil {
      * @param id
      * @return {@code List<PrivateChatLog>}
      */
-    public long getIndexOfLogId(String key,long  id){
-        ListOperations<String, Object> operations = redisTemplate.opsForList();
-        for(long i = 0;i< operations.size(key);i++){
-            if(((PrivateChatLog)operations.index(key,i)).getId()==id){
-                return i;
-            }
-        }
-        return -1;
-    }
+//    public long getIndexOfLogId(String key,long  id){
+//        ListOperations<String, Object> operations = redisTemplate.opsForList();
+//        for(long i = 0;i< operations.size(key);i++){
+//            if(((PrivateChatLog)operations.index(key,i)).getId()==id){
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
 
     /**
      * 获得list长度

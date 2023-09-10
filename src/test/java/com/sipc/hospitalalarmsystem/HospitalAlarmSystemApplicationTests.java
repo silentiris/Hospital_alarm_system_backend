@@ -1,4 +1,4 @@
-package com.sipc.hospital_alarm_system;
+package com.sipc.hospitalalarmsystem;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

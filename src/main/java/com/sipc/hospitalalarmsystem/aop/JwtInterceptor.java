@@ -26,11 +26,11 @@ public class JwtInterceptor implements HandlerInterceptor {
         if (pass != null) {
             return true;
         }
-        if (null == token || "".equals(token) || !JwtUtils.verify(token)) {
+        if (null == token || token.isEmpty() || !JwtUtils.verify(token)) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json; charset=utf-8");
             ObjectMapper objectMapper = new ObjectMapper();
-            if (!(null == token || "".equals(token))) {
+            if (!(null == token || token.isEmpty())) {
                 response.getWriter().println(objectMapper.writeValueAsString(CommonResult.tokenWrong()));
             } else {
                 response.getWriter().println(objectMapper.writeValueAsString(CommonResult.tokenNull()));

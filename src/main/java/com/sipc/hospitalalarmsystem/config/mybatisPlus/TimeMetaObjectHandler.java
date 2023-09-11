@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 @Component
 public class TimeMetaObjectHandler implements MetaObjectHandler {
 
-
     @Override
     public void insertFill(org.apache.ibatis.reflection.MetaObject metaObject) {
         this.setFieldValByName("createTime",new Timestamp(System.currentTimeMillis()), metaObject);

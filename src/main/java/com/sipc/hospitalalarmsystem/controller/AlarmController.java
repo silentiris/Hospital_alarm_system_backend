@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class AlarmController {
     @PostMapping("/api/v1/alarm")
-    public void alarm(@RequestParam int id,@RequestParam int caseType) {
+    public void receiveAlarm(@RequestParam int id,@RequestParam int caseType) {
 
     }
 }

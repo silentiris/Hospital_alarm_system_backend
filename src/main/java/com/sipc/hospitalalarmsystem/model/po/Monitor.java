@@ -1,4 +1,4 @@
-package com.sipc.hospitalalarmsystem.model.po.monitor;
+package com.sipc.hospitalalarmsystem.model.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName()
+@TableName(value = "monitor")
 public class Monitor {
     @TableId(type = IdType.AUTO)
     private int id;

@@ -17,6 +17,12 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <!--chatgpt-->
+        <dependency>
+            <groupId>com.github.plexpt</groupId>
+            <artifactId>chatgpt</artifactId>
+            <version>4.1.2</version>
+        </dependency>
         <!--ffmpeg-->
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>

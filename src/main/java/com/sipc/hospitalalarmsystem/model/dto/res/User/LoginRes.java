@@ -1,4 +1,4 @@
-package com.sipc.hospitalalarmsystem.model.dto.res.user;
+package com.sipc.hospitalalarmsystem.model.dto.res.User;
 
 import lombok.Data;
 

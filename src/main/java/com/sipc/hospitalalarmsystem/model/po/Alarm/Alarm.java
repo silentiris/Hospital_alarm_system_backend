@@ -17,9 +17,9 @@ public class Alarm {
     private Integer monitorId;
     private Integer caseType;
     private Integer warningLevel;
-    @TableField(fill = FieldFill.INSERT,jdbcType = TIMESTAMP)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Timestamp time;
+    @TableField(fill = FieldFill.INSERT,jdbcType = TIMESTAMP)
+    private Timestamp createTime;
     private Boolean status;
     private String processingContent;
 

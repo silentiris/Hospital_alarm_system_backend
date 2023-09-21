@@ -14,5 +14,5 @@ import java.util.List;
 public class QueryAlarmListRes {
     private Integer count;
 
-    private List<Alarm> alarmList;
+    private List<SqlGetAlarmRes> alarmList;
 }

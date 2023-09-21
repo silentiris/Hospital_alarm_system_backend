@@ -5,20 +5,33 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sipc.hospitalalarmsystem.dao.AlarmDao;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.GetAlarmRes;
+import com.sipc.hospitalalarmsystem.dao.QueryAlarmListDao;
+import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
+import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmCaseTypeTotal;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
+import icu.mhb.mybatisplus.plugln.base.service.impl.JoinServiceImpl;
+import icu.mhb.mybatisplus.plugln.core.JoinLambdaWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
 public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements AlarmService {
+
+    @Service
+    public static class QueryAlarmListServiceImpl extends JoinServiceImpl<QueryAlarmListDao, SqlGetAlarmRes> {
+    }
+
+    @Autowired
+    QueryAlarmListServiceImpl QueryAlarmListDao;
 
 
     @Override
@@ -39,28 +52,34 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
     }
 
     @Override
-    public GetAlarmRes getAlarm(Integer alarmId){
+    public SqlGetAlarmRes getAlarm(Integer alarmId){
+
         return this.baseMapper.SqlGetAlarm(alarmId);
     }
 
     @Override
-    public List<Alarm> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String processingContent, String time1, String time2) {
-        QueryWrapper<Alarm> queryWrapper = new QueryWrapper<Alarm>();
+    public List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String processingContent, String time1, String time2) {
+//        QueryWrapper<Alarm> queryWrapper = new QueryWrapper<Alarm>();
+
+        JoinLambdaWrapper<SqlGetAlarmRes> queryWrapper = new JoinLambdaWrapper<>(SqlGetAlarmRes.class);
+
+
+
         if (caseType != null)
-            queryWrapper.eq("case_type", caseType);
+            queryWrapper.eq(SqlGetAlarmRes::getCaseType, caseType);
         if (status != null)
-            queryWrapper.eq("status", status);
+            queryWrapper.eq(SqlGetAlarmRes::getStatus, status);
         if (warningLevel != null)
-            queryWrapper.eq("warning_level", warningLevel);
+            queryWrapper.eq(SqlGetAlarmRes::getWarningLevel, warningLevel);
         if (processingContent != null)
-            queryWrapper.like("processing_content", processingContent);
+            queryWrapper.like(SqlGetAlarmRes::getProcessingContent, processingContent);
 
         if (time1 !=null && time2!=null)
             try{
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date date1 = sdf.parse(time1);
                 Date date2 = sdf.parse(time2);
-                queryWrapper.between("time", date1, date2);
+                queryWrapper.between(SqlGetAlarmRes::getCreateTime, date1, date2);
             } catch (ParseException e) {
                 log.error(e.getMessage());
                 return null;
@@ -70,7 +89,7 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
             try{
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date date1 = sdf.parse(time1);
-                queryWrapper.ge("time", date1);
+                queryWrapper.ge(SqlGetAlarmRes::getCreateTime, date1);
             } catch (ParseException e) {
                 log.error(e.getMessage());
                 return null;
@@ -80,28 +99,28 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
             try{
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date date2 = sdf.parse(time2);
-                queryWrapper.le("time", date2);
+                queryWrapper.le(SqlGetAlarmRes::getCreateTime, date2);
             } catch (ParseException e) {
                 log.error(e.getMessage());
                 return null;
             }
 
-        Page<Alarm> page = new Page<>(pageNum, pageSize);
-        IPage<Alarm> iPage = this.page(page, queryWrapper);
+        Page<SqlGetAlarmRes> page = new Page<>(pageNum, pageSize);
+        IPage<SqlGetAlarmRes> iPage = QueryAlarmListDao.page(page, queryWrapper);
+
         return iPage.getRecords();
     }
 
     @Override
     public Long getAlarmCnt(Integer caseType, String time1,String time2){
-        QueryWrapper<Alarm> queryWrapper = new QueryWrapper<Alarm>();
-
+        QueryWrapper<Alarm> queryWrapper = new QueryWrapper<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         if (caseType != null){
             queryWrapper.eq("case_type", caseType);
         }
 
         if (time1 !=null && time2!=null){
             try{
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date date1 = sdf.parse(time1);
                 Date date2 = sdf.parse(time2);
                 queryWrapper.between("time", date1, date2);
@@ -113,7 +132,6 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
 
         if(time1!=null && time2==null){
             try{
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date date1 = sdf.parse(time1);
                 queryWrapper.ge("time", date1);
             } catch (ParseException e) {
@@ -124,7 +142,6 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
 
         if (time1==null && time2!=null){
             try{
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 Date date2 = sdf.parse(time2);
                 queryWrapper.le("time", date2);
             } catch (ParseException e) {
@@ -153,5 +170,94 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         return this.removeById(alarmId);
     }
 
+    @Override
+    public List<TimePeriod> getDayHistoryCnt(String date){
+        List<TimePeriod> timePeriods = this.baseMapper.SqlGetDayHistoryCnt(date);
+
+        // 生成一个包含所有时间段的完整列表
+        List<String> allPeriods = Arrays.asList("03:00", "06:00", "09:00", "12:00", "15:00", "18:00", "21:00", "24:00");
+
+        //对齐补齐时间
+        Alignment(allPeriods, timePeriods);
+
+        return timePeriods;
+
+    }
+
+    @Override
+    public List<TimePeriod> getDayAreasHistoryCnt(String date){
+        return this.baseMapper.SqlGetAreasDayHistoryCnt(date);
+    }
+
+    @Override
+    public List<TimePeriod> getThreeDaysHistoryCnt(String date){
+        List<String> allPeriods = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (int i = 0; i < 3; i++) {
+            allPeriods.add(sdf.format(calendar.getTime()));
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
+        }
+        List<TimePeriod> timePeriods = this.baseMapper.SqlGetThreeDaysHistoryCnt(date);
+        Alignment(allPeriods, timePeriods);
+
+        return timePeriods;
+    }
+
+    @Override
+    public List<TimePeriod> getWeekHistoryCnt(String date){
+        List<String> allPeriods = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (int i = 0; i < 7; i++) {
+            allPeriods.add(sdf.format(calendar.getTime()));
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
+        }
+        List<TimePeriod> timePeriods = this.baseMapper.SqlGetWeekHistoryCnt(date);
+        Alignment(allPeriods, timePeriods);
+
+        return timePeriods;
+    }
+
+    @Override
+    public List<TimePeriod> getThreeDaysAreasHistoryCnt(String date){
+        return this.baseMapper.SqlGetAreasThreeDaysHistoryCnt(date);
+    }
+
+    @Override
+    public List<TimePeriod> getWeekAreasHistoryCnt(String date){
+        return this.baseMapper.SqlGetAreasWeekHistoryCnt(date);
+    }
+
+
+    @Override
+    public RealTimeAlarmRes getRealTimeAlarmRes(){
+        RealTimeAlarmRes realTimeAlarmRes = new RealTimeAlarmRes();
+        realTimeAlarmRes.setAlarmTotal(this.baseMapper.SqlGetAlarmTotal());
+        realTimeAlarmRes.setAlarmCaseTypeTotalList(this.baseMapper.SqlGetAlarmCaseTypeTotal());
+
+        return realTimeAlarmRes;
+    }
+
+    private List<TimePeriod> Alignment(List<String> allPeriods,List<TimePeriod> timePeriods){
+        for (String period : allPeriods) {
+            boolean exists = false;
+            for (TimePeriod tp : timePeriods) {
+                if (tp.getPeriod().equals(period)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                TimePeriod newTp = new TimePeriod();
+                newTp.setPeriod(period);
+                newTp.setCnt(0L);
+                timePeriods.add(newTp);
+            }
+        }
+        return timePeriods;
+    }
 
 }

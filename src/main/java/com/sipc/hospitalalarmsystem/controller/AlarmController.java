@@ -2,20 +2,24 @@ package com.sipc.hospitalalarmsystem.controller;
 
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.GetAlarmRes;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.QueryAlarmListRes;
+import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
 import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Validated
+@Slf4j
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/alarm")
@@ -34,11 +38,22 @@ public class AlarmController {
 
     @GetMapping("/{alarmId}")
     public CommonResult<GetAlarmRes> getAlarm(@PathVariable @NotNull(message = "alarmId不能为空") Integer alarmId) {
-        GetAlarmRes alarm = alarmService.getAlarm(alarmId);
+        SqlGetAlarmRes alarm = alarmService.getAlarm(alarmId);
         if (alarm == null)
             return CommonResult.fail("查询失败");
-        else
-            return CommonResult.success(alarm);
+        GetAlarmRes getAlarmRes = new GetAlarmRes();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd hh:mm");
+        getAlarmRes.setId(alarmId);
+        getAlarmRes.setName(alarm.getName());
+        getAlarmRes.setEventName(alarm.getCaseType());
+        getAlarmRes.setLevel(alarm.getWarningLevel());
+        getAlarmRes.setDate(sdf.format(alarm.getCreateTime()));
+        getAlarmRes.setDepartment(alarm.getArea());
+        getAlarmRes.setDeal(alarm.getStatus() ? "已处理":"未处理");
+        getAlarmRes.setContent(alarm.getProcessingContent());
+        getAlarmRes.setVideo(alarm.getClipLink());
+
+        return CommonResult.success(getAlarmRes);
     }
 
     @GetMapping("/query/cnt")
@@ -52,6 +67,40 @@ public class AlarmController {
             return CommonResult.success(alarmCnt.toString());
     }
 
+    @GetMapping("/query/cnt/history")
+    public CommonResult<GetHistoryCntRes> getHistoryCntRes(@RequestParam(value = "defer") Integer defer) {
+        GetHistoryCntRes getHistoryCntRes = new GetHistoryCntRes();
+        List<TimePeriod> g1;
+        List<TimePeriod> g2;
+        LocalDateTime currentDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(0);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String time = currentDate.format(formatter);
+        if (defer == 1){
+            g1 = alarmService.getDayHistoryCnt(time);
+            getHistoryCntRes.setGraph1(g1);
+            g2 = alarmService.getDayAreasHistoryCnt(time);
+            getHistoryCntRes.setGraph2(g2);
+        }
+        else if (defer == 3){
+            g1 = alarmService.getThreeDaysHistoryCnt(time);
+            getHistoryCntRes.setGraph1(g1);
+            g2 = alarmService.getThreeDaysAreasHistoryCnt(time);
+            getHistoryCntRes.setGraph2(g2);
+        }
+        else if (defer == 7){
+            g1 = alarmService.getWeekHistoryCnt(time);
+            getHistoryCntRes.setGraph1(g1);
+            g2 = alarmService.getWeekAreasHistoryCnt(time);
+            getHistoryCntRes.setGraph2(g2);
+        }
+        else{
+            return CommonResult.fail("参数错误");
+        }
+
+        return CommonResult.success(getHistoryCntRes);
+    }
+
+
     @GetMapping("/query")
     public CommonResult<QueryAlarmListRes> queryAlarmList(@RequestParam(value = "pageNum",required = true)  Integer pageNum,
                                                           @RequestParam(value = "pageSize",required = true)  Integer pageSize,
@@ -62,14 +111,14 @@ public class AlarmController {
                                                           @RequestParam(value = "time1",required = false) String time1,
                                                           @RequestParam(value = "time2",required = false)  String time2) {
 
-        List<Alarm> alarmList = alarmService.queryAlarmList(pageNum, pageSize, caseType, status, warningLevel, processingContent, time1, time2);
+        List<SqlGetAlarmRes> alarmList = alarmService.queryAlarmList(pageNum, pageSize, caseType, status, warningLevel, processingContent, time1, time2);
 
         if (alarmList == null)
             return CommonResult.fail("查询失败");
 
         QueryAlarmListRes queryAlarmListRes = new QueryAlarmListRes();
-        queryAlarmListRes.setCount(alarmList.size());
-        queryAlarmListRes.setAlarmList(alarmList);
+//        queryAlarmListRes.setCount(alarmList.size());
+//        queryAlarmListRes.setAlarmList(alarmList);
         return CommonResult.success(queryAlarmListRes);
     }
 
@@ -88,5 +137,14 @@ public class AlarmController {
             return CommonResult.success("删除成功");
         else
             return CommonResult.fail("删除失败");
+    }
+
+    @GetMapping("/realtime")
+    public CommonResult<RealTimeAlarmRes> getRealTimeAlarm() {
+        RealTimeAlarmRes realTimeAlarmRes = alarmService.getRealTimeAlarmRes();
+        if (realTimeAlarmRes == null)
+            return CommonResult.fail("查询失败");
+        else
+            return CommonResult.success(realTimeAlarmRes);
     }
 }

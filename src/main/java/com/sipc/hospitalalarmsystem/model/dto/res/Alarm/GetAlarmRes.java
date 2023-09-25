@@ -1,25 +1,24 @@
 package com.sipc.hospitalalarmsystem.model.dto.res.Alarm;
 
-import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import lombok.Data;
-
-import java.sql.Timestamp;
 
 /**
  * @author CZCZCZ
- * &#064;date 2023-09-13 17:53
+ * &#064;date 2023-09-20 18:30
  */
-@Data
-public class GetAlarmRes {
 
+@Data
+public class GetAlarmRes
+{
     private Integer id;
-    private String clipLink;
-    private Integer monitorId;
-    private Integer caseType;
-    private Integer warningLevel;
-    private Timestamp time;
-    private Boolean status;
-    private String processingContent;
-    private String area;
+    private String name;
+    private String eventName;
+    private Integer level;
+    private String date;
+    private String department;
+    private String deal;
+    private String content;
+    private String video;
+
 
 }

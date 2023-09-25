@@ -28,7 +28,8 @@ import java.util.*;
 public class RecordUtil extends Thread {
     private String streamURL;
     private final ThreadLocal<Deque<Frame>> frameThreadLocal = ThreadLocal.withInitial(LinkedList::new);
-    private COSClient cosClient = OssConfig.cosClient();
+    @Autowired
+    private OssConfig ossConfig ;
     public RecordUtil(String streamURL) {
         this.streamURL = streamURL;
     }
@@ -61,6 +62,7 @@ public class RecordUtil extends Thread {
                 randomId + ".flv",
                 is,
                 objectMetadata);
+        COSClient cosClient = ossConfig.cosClient();
         cosClient.putObject(putObjectRequest);
 
         return cosClient.generatePresignedUrl(

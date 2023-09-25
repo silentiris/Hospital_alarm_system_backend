@@ -7,11 +7,16 @@ import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.http.HttpProtocol;
 import com.qcloud.cos.region.Region;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OssConfig {
-    public static COSClient cosClient() {
-        String secretId = "AKIDcI2rYIwPjrxxuxud7OWXP8j7VuDPOAl9";
-        String secretKey = "MVVN8tgK9vWwQr57kIp9NadWDiz502wf";
+    @Value("${oss.id}")
+    private static String secretId ;
+    @Value("${oss.pass}")
+    private static String secretKey ;
+    public  COSClient cosClient() {
         COSCredentials cred = new BasicCOSCredentials(secretId, secretKey);
         // ClientConfig 中包含了后续请求 COS 的客户端设置：
         ClientConfig clientConfig = new ClientConfig();

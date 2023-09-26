@@ -1,6 +1,5 @@
 package com.sipc.hospitalalarmsystem.controller;
 
-import com.plexpt.chatgpt.ChatGPTStream;
 import com.plexpt.chatgpt.entity.chat.Message;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.gpt.ChatParam;
@@ -11,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -31,8 +29,7 @@ public class GptController {
     GptService gptService;
 
     @PostMapping()
-    public CommonResult<BlankRes> chat(@Valid  @RequestBody ChatParam param,
-                                       @RequestParam(required = false) String balance) {
+    public CommonResult<BlankRes> chat(@Valid  @RequestBody ChatParam param) {
 
 
         log.info("正在提问: " + param.getMessage());

@@ -1,6 +1,5 @@
 package com.sipc.hospitalalarmsystem.model.dto.res.Alarm;
 
-import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import lombok.Data;
 
 import java.util.List;
@@ -14,5 +13,5 @@ import java.util.List;
 public class QueryAlarmListRes {
     private Integer count;
 
-    private List<SqlGetAlarmRes> alarmList;
+    private List<GetAlarmRes> alarmList;
 }

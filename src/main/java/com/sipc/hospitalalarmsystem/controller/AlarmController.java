@@ -1,21 +1,31 @@
 package com.sipc.hospitalalarmsystem.controller;
 
+import com.alibaba.excel.EasyExcel;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
 import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Validated
@@ -41,19 +51,8 @@ public class AlarmController {
         SqlGetAlarmRes alarm = alarmService.getAlarm(alarmId);
         if (alarm == null)
             return CommonResult.fail("查询失败");
-        GetAlarmRes getAlarmRes = new GetAlarmRes();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd hh:mm");
-        getAlarmRes.setId(alarmId);
-        getAlarmRes.setName(alarm.getName());
-        getAlarmRes.setEventName(alarm.getCaseType());
-        getAlarmRes.setLevel(alarm.getWarningLevel());
-        getAlarmRes.setDate(sdf.format(alarm.getCreateTime()));
-        getAlarmRes.setDepartment(alarm.getArea());
-        getAlarmRes.setDeal(alarm.getStatus() ? "已处理":"未处理");
-        getAlarmRes.setContent(alarm.getProcessingContent());
-        getAlarmRes.setVideo(alarm.getClipLink());
 
-        return CommonResult.success(getAlarmRes);
+        return CommonResult.success(SqlGetAlarmRes2GetAlarmRes(alarm));
     }
 
     @GetMapping("/query/cnt")
@@ -107,18 +106,22 @@ public class AlarmController {
                                                           @RequestParam(value = "caseType",required = false) Integer caseType,
                                                           @RequestParam(value = "status",required = false)  Integer status,
                                                           @RequestParam(value = "warningLevel",required = false)  Integer warningLevel,
-                                                          @RequestParam(value = "processingContent",required = false)  String processingContent,
                                                           @RequestParam(value = "time1",required = false) String time1,
                                                           @RequestParam(value = "time2",required = false)  String time2) {
 
-        List<SqlGetAlarmRes> alarmList = alarmService.queryAlarmList(pageNum, pageSize, caseType, status, warningLevel, processingContent, time1, time2);
+        List<SqlGetAlarmRes> alarmList = alarmService.queryAlarmList(pageNum, pageSize, caseType, status, warningLevel, time1, time2);
 
         if (alarmList == null)
             return CommonResult.fail("查询失败");
 
+        List<GetAlarmRes> res = new ArrayList<>();
+
+        for(SqlGetAlarmRes alarm : alarmList){
+            res.add(SqlGetAlarmRes2GetAlarmRes(alarm));
+        }
         QueryAlarmListRes queryAlarmListRes = new QueryAlarmListRes();
-//        queryAlarmListRes.setCount(alarmList.size());
-//        queryAlarmListRes.setAlarmList(alarmList);
+        queryAlarmListRes.setCount(res.size());
+        queryAlarmListRes.setAlarmList(res);
         return CommonResult.success(queryAlarmListRes);
     }
 
@@ -146,5 +149,44 @@ public class AlarmController {
             return CommonResult.fail("查询失败");
         else
             return CommonResult.success(realTimeAlarmRes);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportAlarms(){
+        String Filename = "temp.xlsx";
+        File file = new File(Filename);
+        EasyExcel.write(Filename, GetAlarmRes.class)
+                .sheet("报警数据")
+                .doWrite(() -> {
+                    List<SqlGetAlarmRes> alarmRes =  alarmService.queryAlarmList(1, 5000, null, null, null, null, null);
+                    List<GetAlarmRes> res = new ArrayList<>();
+                    for (SqlGetAlarmRes alarmRe : alarmRes) {
+                        res.add(SqlGetAlarmRes2GetAlarmRes(alarmRe));
+                    }
+                    return res;
+                });
+        byte[] bytes = null;
+        try {
+            bytes = Files.readAllBytes(file.toPath());
+        }catch (Exception e) {
+            log.error("文件读取失败");
+            return null;
+        }
+        return ResponseEntity.ok().body(bytes);
+        }
+
+    static public GetAlarmRes SqlGetAlarmRes2GetAlarmRes(SqlGetAlarmRes sqlGetAlarmRes){
+        GetAlarmRes getAlarmRes = new GetAlarmRes();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd hh:mm");
+        getAlarmRes.setId(sqlGetAlarmRes.getId());
+        getAlarmRes.setName(sqlGetAlarmRes.getName());
+        getAlarmRes.setEventName(sqlGetAlarmRes.getCaseType());
+        getAlarmRes.setLevel(sqlGetAlarmRes.getWarningLevel());
+        getAlarmRes.setDate(sdf.format(sqlGetAlarmRes.getCreateTime()));
+        getAlarmRes.setDepartment(sqlGetAlarmRes.getArea());
+        getAlarmRes.setDeal(sqlGetAlarmRes.getStatus() ? "已处理":"未处理");
+        getAlarmRes.setContent(sqlGetAlarmRes.getProcessingContent());
+        getAlarmRes.setVideo(sqlGetAlarmRes.getClipLink());
+        return getAlarmRes;
     }
 }

@@ -11,7 +11,6 @@ public enum ResultEnum {
     LOGIN_ERR("B0100", "用户未注册");
     private final String code;
     private final String message;
-
     ResultEnum(String code, String message) {
         this.code = code;
         this.message = message;

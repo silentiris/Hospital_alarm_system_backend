@@ -5,17 +5,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sipc.hospitalalarmsystem.dao.AlarmDao;
-import com.sipc.hospitalalarmsystem.dao.QueryAlarmListDao;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmCaseTypeTotal;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
-import icu.mhb.mybatisplus.plugln.base.service.impl.JoinServiceImpl;
-import icu.mhb.mybatisplus.plugln.core.JoinLambdaWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -26,12 +21,6 @@ import java.util.*;
 @Slf4j
 public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements AlarmService {
 
-    @Service
-    public static class QueryAlarmListServiceImpl extends JoinServiceImpl<QueryAlarmListDao, SqlGetAlarmRes> {
-    }
-
-    @Autowired
-    QueryAlarmListServiceImpl QueryAlarmListDao;
 
 
     @Override
@@ -57,58 +46,55 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         return this.baseMapper.SqlGetAlarm(alarmId);
     }
 
-    @Override
-    public List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String processingContent, String time1, String time2) {
-//        QueryWrapper<Alarm> queryWrapper = new QueryWrapper<Alarm>();
 
-        JoinLambdaWrapper<SqlGetAlarmRes> queryWrapper = new JoinLambdaWrapper<>(SqlGetAlarmRes.class);
+    public  List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String time1,String time2) {
 
+//        if (caseType != null)
+//            queryWrapper.eq("caseType", caseType);
+//        if (status != null)
+//            queryWrapper.eq(, status);
+//        if (warningLevel != null)
+//            queryWrapper.eq(, warningLevel);
+//        if (processingContent != null)
+//            queryWrapper.like(Alarm::getProcessingContent, processingContent);
+//
+//        if (time1 !=null && time2!=null)
+//            try{
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//                Date date1 = sdf.parse(time1);
+//                Date date2 = sdf.parse(time2);
+//                queryWrapper.between(Alarm::getCreateTime, date1, date2);
+//            } catch (ParseException e) {
+//                log.error(e.getMessage());
+//                return null;
+//            }
+//
+//        if (time1!=null && time2==null)
+//            try{
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//                Date date1 = sdf.parse(time1);
+//                queryWrapper.ge(Alarm::getCreateTime, date1);
+//            } catch (ParseException e) {
+//                log.error(e.getMessage());
+//                return null;
+//            }
+//
+//        if (time1==null && time2!=null)
+//            try{
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//                Date date2 = sdf.parse(time2);
+//                queryWrapper.le(Alarm::getCreateTime, date2);
+//            } catch (ParseException e) {
+//                log.error(e.getMessage());
+//                return null;
+//            }
 
+//        Page<Alarm> page = new Page<>(pageNum, pageSize);
+//        IPage<Alarm> iPage = this.page(page, queryWrapper);
 
-        if (caseType != null)
-            queryWrapper.eq(SqlGetAlarmRes::getCaseType, caseType);
-        if (status != null)
-            queryWrapper.eq(SqlGetAlarmRes::getStatus, status);
-        if (warningLevel != null)
-            queryWrapper.eq(SqlGetAlarmRes::getWarningLevel, warningLevel);
-        if (processingContent != null)
-            queryWrapper.like(SqlGetAlarmRes::getProcessingContent, processingContent);
+        List<SqlGetAlarmRes> alarms = this.baseMapper.selectByCondition(pageNum-1,pageSize,caseType != null?caseType.toString():null, status != null?status.toString():null, warningLevel!=null?warningLevel.toString():null, time1, time2);
 
-        if (time1 !=null && time2!=null)
-            try{
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1 = sdf.parse(time1);
-                Date date2 = sdf.parse(time2);
-                queryWrapper.between(SqlGetAlarmRes::getCreateTime, date1, date2);
-            } catch (ParseException e) {
-                log.error(e.getMessage());
-                return null;
-            }
-
-        if (time1!=null && time2==null)
-            try{
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1 = sdf.parse(time1);
-                queryWrapper.ge(SqlGetAlarmRes::getCreateTime, date1);
-            } catch (ParseException e) {
-                log.error(e.getMessage());
-                return null;
-            }
-
-        if (time1==null && time2!=null)
-            try{
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date date2 = sdf.parse(time2);
-                queryWrapper.le(SqlGetAlarmRes::getCreateTime, date2);
-            } catch (ParseException e) {
-                log.error(e.getMessage());
-                return null;
-            }
-
-        Page<SqlGetAlarmRes> page = new Page<>(pageNum, pageSize);
-        IPage<SqlGetAlarmRes> iPage = QueryAlarmListDao.page(page, queryWrapper);
-
-        return iPage.getRecords();
+        return alarms;
     }
 
     @Override

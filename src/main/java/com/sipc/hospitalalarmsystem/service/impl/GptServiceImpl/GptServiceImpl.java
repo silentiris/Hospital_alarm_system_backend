@@ -5,7 +5,10 @@ import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
 import com.plexpt.chatgpt.entity.chat.Message;
 import com.sipc.hospitalalarmsystem.model.dto.param.gpt.ChatParam;
 import com.sipc.hospitalalarmsystem.service.GptService;
+import com.sipc.hospitalalarmsystem.util.KeyUtils.KeyManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,11 +22,13 @@ import java.util.Map;
  */
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class GptServiceImpl implements GptService {
 
+    final KeyManager keyManager;
+
     private static Map<String, List<Message>> context = new HashMap<>();
-    String APIKEY = "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";
 
     public List<Message> get(String id) {
         List<Message> messages = context.get(id);
@@ -50,7 +55,9 @@ public class GptServiceImpl implements GptService {
 
 
         String prompt = param.buildPrompt();
+        String APIKEY = keyManager.getKey();
 
+        log.error("APIKEY: " + APIKEY);
 
         ChatGPT chatGPT = ChatGPT.builder()
                 .apiKey(APIKEY)

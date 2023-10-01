@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
@@ -20,6 +19,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.*;
+
+import static org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264;
+
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Data
@@ -36,7 +38,7 @@ public class RecordUtil extends Thread {
 
     public FFmpegFrameRecorder getRecorder(OutputStream os) {
         FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(os, 540, 360, 1);
-        recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+        recorder.setVideoCodec(AV_CODEC_ID_H264);
         recorder.setFormat("flv");
         recorder.setFrameRate(25);
         return recorder;
@@ -72,21 +74,23 @@ public class RecordUtil extends Thread {
                 HttpMethodName.GET).toString();
     }
 
+
     @Override
     public void run() {
         System.out.println(streamURL);
-        int sig = 250;
+        int clipSize = 250;
         try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(streamURL)) {
             grabber.setFrameRate(25);
             grabber.start();
             Frame frame = grabber.grabImage();
             while (frame == null) {
                 frame = grabber.grabImage();
+                log.info(streamURL+"等待视频流...");
             }
             while ((frame != null)) {
                 frame = grabber.grabImage();
                 frameThreadLocal.get().offer(frame.clone());
-                if (frameThreadLocal.get().size() > sig) {
+                if (frameThreadLocal.get().size() > clipSize) {
                     frameThreadLocal.get().poll();
                 }
             }

@@ -124,7 +124,6 @@ public class AlarmController {
 
     @PutMapping("/update")
     public CommonResult<BlankRes> updateAlarm(@Valid @RequestBody UpdateAlarmParam updateAlarmParam) {
-
         if (alarmService.updateAlarm(updateAlarmParam.getId(), updateAlarmParam.getStatus(), updateAlarmParam.getProcessingContent()))
             return CommonResult.success("更新成功");
         else

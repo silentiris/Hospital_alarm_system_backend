@@ -22,7 +22,7 @@ public interface AlarmDao extends BaseMapper<Alarm> {
 
     @Select("<script>" +
             "SELECT monitor.area,\n" +
-            "    case_type_info.case_type,\n" +
+            "    case_type_info.case_type_name,\n" +
             "    alarm_info.id,\n" +
             "    alarm_info.clip_link,\n" +
             "    alarm_info.warning_level,\n" +
@@ -78,7 +78,7 @@ public interface AlarmDao extends BaseMapper<Alarm> {
     @Select("""
             SELECT
             \tmonitor.area,\s
-            \tcase_type_info.case_type,\s
+            \tcase_type_info.case_type_name,\s
             \talarm_info.id,\s
             \talarm_info.clip_link,\s
             \talarm_info.warning_level,\s

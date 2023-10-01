@@ -24,75 +24,49 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
 
 
     @Override
-    public Boolean receiveAlarm(Integer cameraID, Integer caseType) {
+    public Boolean receiveAlarm(Integer cameraID, Integer caseType,String clipLink){
         log.info("receive alarm from camera: "+cameraID+" caseType: "+caseType);
-        log.info("Start recording....");
-        new Thread(()->{
-//            record(id)
-            Alarm alarm = new Alarm();
-            alarm.setClipLink("");//后面放文件名
-            alarm.setCaseType(caseType);
-            alarm.setMonitorId(cameraID);
-            alarm.setWarningLevel(1);
-            alarm.setStatus(false);
-            this.save(alarm);
-        }).start();
+        Alarm alarm = new Alarm();
+        alarm.setClipLink(clipLink);
+        alarm.setCaseType(caseType);
+        alarm.setMonitorId(cameraID);
+        alarm.setWarningLevel(1);
+        alarm.setStatus(false);
+        this.save(alarm);
         return true;
     }
 
     @Override
     public SqlGetAlarmRes getAlarm(Integer alarmId){
-
+        //TODO 从OSS获取clip地址
         return this.baseMapper.SqlGetAlarm(alarmId);
     }
 
 
     public  List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String time1,String time2) {
 
-//        if (caseType != null)
-//            queryWrapper.eq("caseType", caseType);
-//        if (status != null)
-//            queryWrapper.eq(, status);
-//        if (warningLevel != null)
-//            queryWrapper.eq(, warningLevel);
-//        if (processingContent != null)
-//            queryWrapper.like(Alarm::getProcessingContent, processingContent);
-//
-//        if (time1 !=null && time2!=null)
-//            try{
-//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//                Date date1 = sdf.parse(time1);
-//                Date date2 = sdf.parse(time2);
-//                queryWrapper.between(Alarm::getCreateTime, date1, date2);
-//            } catch (ParseException e) {
-//                log.error(e.getMessage());
-//                return null;
-//            }
-//
-//        if (time1!=null && time2==null)
-//            try{
-//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//                Date date1 = sdf.parse(time1);
-//                queryWrapper.ge(Alarm::getCreateTime, date1);
-//            } catch (ParseException e) {
-//                log.error(e.getMessage());
-//                return null;
-//            }
-//
-//        if (time1==null && time2!=null)
-//            try{
-//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//                Date date2 = sdf.parse(time2);
-//                queryWrapper.le(Alarm::getCreateTime, date2);
-//            } catch (ParseException e) {
-//                log.error(e.getMessage());
-//                return null;
-//            }
 
-//        Page<Alarm> page = new Page<>(pageNum, pageSize);
-//        IPage<Alarm> iPage = this.page(page, queryWrapper);
-
+        //TODO 从OSS获取clip地址
         List<SqlGetAlarmRes> alarms = this.baseMapper.selectByCondition(pageNum-1,pageSize,caseType != null?caseType.toString():null, status != null?status.toString():null, warningLevel!=null?warningLevel.toString():null, time1, time2);
+        //根据warningLevel和时间进行降序排序
+        if (alarms.isEmpty())
+            return alarms;
+        alarms.sort((o1, o2) -> {
+            if (o1.getWarningLevel() > o2.getWarningLevel())
+                return -1;
+            else if (o1.getWarningLevel() < o2.getWarningLevel())
+                return 1;
+            else {
+                if (o1.getCreateTime().after(o2.getCreateTime()))
+                    return -1;
+                else if (o1.getCreateTime().before(o2.getCreateTime()))
+                    return 1;
+                else
+                    return 0;
+            }
+        });
+
+
 
         return alarms;
     }

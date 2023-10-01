@@ -13,5 +13,5 @@ import lombok.Data;
 public class CaseTypeInfo
 {
     private Integer id;
-    private String caseType;
+    private String caseTypeName;
 }

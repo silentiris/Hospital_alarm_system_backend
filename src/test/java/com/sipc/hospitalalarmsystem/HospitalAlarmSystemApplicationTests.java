@@ -27,7 +27,7 @@ class HospitalAlarmSystemApplicationTests {
 
     @Test
     void contextLoads() throws InterruptedException {
-        Thread.sleep(10*1000);
+        Thread.sleep(10*10000000000000000L);
         System.out.println(recordService.getRecord(1));
     }
 
@@ -38,7 +38,7 @@ class HospitalAlarmSystemApplicationTests {
         // Proxy proxy = Proxys.socks5("127.0.0.1", 1080);
 
         ChatGPT chatGPT = ChatGPT.builder()
-                .apiKey("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")
+                .apiKey("")
                 .apiHost("https://api.openai.com/") //反向代理地址
                 .build()
                 .init();

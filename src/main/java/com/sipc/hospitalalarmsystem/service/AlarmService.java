@@ -9,7 +9,7 @@ import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import java.util.List;
 
 public interface AlarmService {
-    Boolean receiveAlarm(Integer cameraId,Integer caseType);
+    Boolean receiveAlarm(Integer cameraId,Integer caseType,String clipLink);
 
     List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String time1,String time2);
 

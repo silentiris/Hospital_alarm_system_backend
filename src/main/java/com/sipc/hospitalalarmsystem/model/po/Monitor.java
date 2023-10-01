@@ -19,4 +19,5 @@ public class Monitor {
     private int stayedTooLong;
     private int flame;
     private int smoke;
+    private String stream;
 }

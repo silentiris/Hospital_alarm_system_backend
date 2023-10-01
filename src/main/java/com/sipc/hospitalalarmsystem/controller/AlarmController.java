@@ -5,7 +5,6 @@ import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
 import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import jakarta.validation.Valid;
@@ -15,12 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -39,8 +34,10 @@ public class AlarmController {
     AlarmService alarmService;
 
     @PostMapping("/receive")
-    public CommonResult<BlankRes> receiveAlarm(@RequestParam int cameraId, @RequestParam int caseType) {
-        if (alarmService.receiveAlarm(cameraId, caseType))
+    public CommonResult<BlankRes> receiveAlarm(@RequestParam(value = "cameraId",required = true) int cameraId,
+                                               @RequestParam(value = "caseType",required = true) int caseType,
+                                               @RequestParam(value = "clipId",required = true) String clipId) {
+        if (alarmService.receiveAlarm(cameraId, caseType,clipId))
             return CommonResult.success("接收成功");
         else
             return CommonResult.fail("接收失败");
@@ -180,7 +177,7 @@ public class AlarmController {
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd hh:mm");
         getAlarmRes.setId(sqlGetAlarmRes.getId());
         getAlarmRes.setName(sqlGetAlarmRes.getName());
-        getAlarmRes.setEventName(sqlGetAlarmRes.getCaseType());
+        getAlarmRes.setEventName(sqlGetAlarmRes.getCaseTypeName());
         getAlarmRes.setLevel(sqlGetAlarmRes.getWarningLevel());
         getAlarmRes.setDate(sdf.format(sqlGetAlarmRes.getCreateTime()));
         getAlarmRes.setDepartment(sqlGetAlarmRes.getArea());

@@ -14,7 +14,7 @@ public class SqlGetAlarmRes {
     private Integer id;
     private String clipLink;
     private String name;
-    private String caseType;
+    private String caseTypeName;
     private Integer warningLevel;
     private Timestamp createTime;
     private Boolean status;

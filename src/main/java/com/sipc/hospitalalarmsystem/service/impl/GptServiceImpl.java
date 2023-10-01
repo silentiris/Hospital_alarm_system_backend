@@ -1,4 +1,4 @@
-package com.sipc.hospitalalarmsystem.service.impl.GptServiceImpl;
+package com.sipc.hospitalalarmsystem.service.impl;
 
 import com.plexpt.chatgpt.ChatGPT;
 import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +55,7 @@ public class GptServiceImpl implements GptService {
     @Override
     public Message getText(ChatParam param) {
 
-
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
         String prompt = param.buildPrompt();
         String APIKEY = keyManager.getKey();
 
@@ -62,6 +64,7 @@ public class GptServiceImpl implements GptService {
         ChatGPT chatGPT = ChatGPT.builder()
                 .apiKey(APIKEY)
                 .timeout(50)
+                .proxy(proxy)
                 .build()
                 .init();
 

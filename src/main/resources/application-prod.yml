@@ -48,3 +48,12 @@ spring:
     redis:
       time-to-live: -1
       use-key-prefix: true
+
+oss:
+  id: xxx
+  pass: xxxx
+
+keys:
+  list:
+    - sk-xxx
+    - sk-xxxx

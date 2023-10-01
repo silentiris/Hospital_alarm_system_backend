@@ -8,6 +8,7 @@ import com.sipc.hospitalalarmsystem.service.RecordService;
 import com.plexpt.chatgpt.ChatGPT;
 
 
+import com.sipc.hospitalalarmsystem.util.OssUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,11 +25,12 @@ class HospitalAlarmSystemApplicationTests {
     private RecordService recordService;
     @Autowired
     AlarmService alarmService;
+    @Autowired
+    private OssUtil ossUtil;
 
     @Test
     void contextLoads() throws InterruptedException {
-        Thread.sleep(10*10000000000000000L);
-        System.out.println(recordService.getRecord(1));
+        System.out.println(ossUtil.getClipLinkByUuid("51987bdb-1ab0-4e61-8fc1-9257de192a7b"));
     }
 
     @Test

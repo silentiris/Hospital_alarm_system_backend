@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class OssConfig {
     @Value("${oss.id}")
-    private static String secretId ;
+    private  String secretId ;
     @Value("${oss.pass}")
-    private static String secretKey ;
+    private  String secretKey ;
     public  COSClient cosClient() {
         COSCredentials cred = new BasicCOSCredentials(secretId, secretKey);
         // ClientConfig 中包含了后续请求 COS 的客户端设置：

@@ -9,6 +9,7 @@ import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.javacpp.presets.opencv_core;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -197,6 +198,21 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         realTimeAlarmRes.setAlarmCaseTypeTotalList(this.baseMapper.SqlGetAlarmCaseTypeTotal());
 
         return realTimeAlarmRes;
+    }
+
+    @Override
+    public List<TimePeriod> SqlGetCaseTypesDayHistoryCnt(String date){
+        return this.baseMapper.SqlGetCaseTypesDayHistoryCnt(date);
+    }
+
+    @Override
+    public List<TimePeriod> SqlGetCaseTypesThreeDaysHistoryCnt( String date){
+        return this.baseMapper.SqlGetCaseTypesThreeDaysHistoryCnt(date);
+    }
+
+    @Override
+    public List<TimePeriod> SqlGetCaseTypesWeekHistoryCnt( String date){
+        return this.baseMapper.SqlGetCaseTypesWeekHistoryCnt(date);
     }
 
     private List<TimePeriod> Alignment(List<String> allPeriods,List<TimePeriod> timePeriods){

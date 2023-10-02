@@ -68,10 +68,11 @@ public interface AlarmDao extends BaseMapper<Alarm> {
             SELECT
               c.case_type_name,
               SUM(CASE WHEN DATE(a.create_time) = CURDATE() THEN 1 ELSE 0 END) AS today_new,
-              COUNT(*) AS total
-            FROM alarm_info a\s
-            JOIN case_type_info c ON a.case_type = c.id
-            GROUP BY c.case_type_name""")
+              COUNT(a.case_type) AS total
+            FROM case_type_info c\s
+            LEFT JOIN alarm_info a ON c.id = a.case_type
+            GROUP BY c.case_type_name
+            """)
     List<AlarmCaseTypeTotal> SqlGetAlarmCaseTypeTotal();
 
     @Select("""
@@ -125,32 +126,60 @@ public interface AlarmDao extends BaseMapper<Alarm> {
 
     @Select("""
             SELECT
-              m.area AS period,
-              COUNT(*) AS cnt\s
-            FROM alarm_info a
-            LEFT JOIN monitor m ON a.monitor_id = m.id
-            WHERE DATE(a.create_time) = #{date}
-            GROUP BY period""")
+                    m.area AS period,
+                    COUNT(a.monitor_id) AS cnt
+                FROM monitor m
+                LEFT JOIN alarm_info a ON m.id = a.monitor_id AND DATE(a.create_time) = #{date}
+                GROUP BY m.area""")
     List<TimePeriod> SqlGetAreasDayHistoryCnt(@Param("date") String date);
 
     @Select("""
-            SELECT
-              m.area AS period,
-              COUNT(*) AS cnt\s
-            FROM alarm_info a
-            LEFT JOIN monitor m ON a.monitor_id = m.id
-            WHERE DATE(a.create_time) BETWEEN DATE_SUB(#{date}, INTERVAL 2 DAY) AND #{date}
-            GROUP BY period""")
+    SELECT
+        m.area AS period,
+        COUNT(a.monitor_id) AS cnt
+    FROM monitor m
+    LEFT JOIN alarm_info a ON m.id = a.monitor_id AND DATE(a.create_time) BETWEEN DATE_SUB(#{date}, INTERVAL 2 DAY) AND #{date}
+    GROUP BY m.area""")
     List<TimePeriod> SqlGetAreasThreeDaysHistoryCnt(@Param("date") String date);
 
 
+
     @Select("""
-            SELECT
-              m.area AS period,
-              COUNT(*) AS cnt\s
-            FROM alarm_info a
-            LEFT JOIN monitor m ON a.monitor_id = m.id
-            WHERE DATE(a.create_time) BETWEEN DATE_SUB(#{date}, INTERVAL 6 DAY) AND #{date}
-            GROUP BY period""")
+    SELECT
+        m.area AS period,
+        COUNT(a.monitor_id) AS cnt
+    FROM monitor m
+    LEFT JOIN alarm_info a ON m.id = a.monitor_id AND DATE(a.create_time) BETWEEN DATE_SUB(#{date}, INTERVAL 6 DAY) AND #{date}
+    GROUP BY m.area""")
     List<TimePeriod> SqlGetAreasWeekHistoryCnt(@Param("date") String date);
+
+
+    @Select("""
+    SELECT
+        case_type_info.case_type_name as period,
+        COUNT(alarm_info.case_type) AS cnt
+    FROM case_type_info
+    LEFT JOIN alarm_info ON case_type_info.id = alarm_info.case_type AND DATE(alarm_info.create_time) = #{date}
+    GROUP BY case_type_info.case_type_name""")
+    List<TimePeriod> SqlGetCaseTypesDayHistoryCnt(@Param("date") String date);
+
+    @Select("""
+    SELECT
+        case_type_info.case_type_name as period,
+        COUNT(alarm_info.case_type) AS cnt
+    FROM case_type_info
+    LEFT JOIN alarm_info ON case_type_info.id = alarm_info.case_type AND DATE(alarm_info.create_time) BETWEEN DATE_SUB(#{date}, INTERVAL 2 DAY) AND #{date}
+    GROUP BY case_type_info.case_type_name""")
+    List<TimePeriod> SqlGetCaseTypesThreeDaysHistoryCnt(@Param("date") String date);
+
+
+    @Select("""
+    SELECT
+        case_type_info.case_type_name as period,
+        COUNT(alarm_info.case_type) AS cnt
+    FROM case_type_info
+    LEFT JOIN alarm_info ON case_type_info.id = alarm_info.case_type AND DATE(alarm_info.create_time) BETWEEN DATE_SUB(#{date}, INTERVAL 6 DAY) AND #{date}
+    GROUP BY case_type_info.case_type_name""")
+    List<TimePeriod> SqlGetCaseTypesWeekHistoryCnt(@Param("date") String date);
+
 }

@@ -17,5 +17,6 @@ public class GetHistoryCntRes
 
     List<TimePeriod> graph2;
 
+    List<TimePeriod> graph3;
 
 }

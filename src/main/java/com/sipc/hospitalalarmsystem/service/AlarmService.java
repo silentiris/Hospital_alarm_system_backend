@@ -3,6 +3,7 @@ package com.sipc.hospitalalarmsystem.service;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -30,6 +31,12 @@ public interface AlarmService {
     List<TimePeriod> getThreeDaysAreasHistoryCnt(String date);
 
     List<TimePeriod> getWeekAreasHistoryCnt(String date);
+
+    List<TimePeriod> SqlGetCaseTypesDayHistoryCnt(String date);
+
+    List<TimePeriod> SqlGetCaseTypesThreeDaysHistoryCnt( String date);
+
+    List<TimePeriod> SqlGetCaseTypesWeekHistoryCnt( String date);
 
 
     RealTimeAlarmRes getRealTimeAlarmRes();

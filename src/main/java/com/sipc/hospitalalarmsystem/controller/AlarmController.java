@@ -69,6 +69,7 @@ public class AlarmController {
         GetHistoryCntRes getHistoryCntRes = new GetHistoryCntRes();
         List<TimePeriod> g1;
         List<TimePeriod> g2;
+        List<TimePeriod> g3;
         LocalDateTime currentDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(0);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String time = currentDate.format(formatter);
@@ -77,18 +78,24 @@ public class AlarmController {
             getHistoryCntRes.setGraph1(g1);
             g2 = alarmService.getDayAreasHistoryCnt(time);
             getHistoryCntRes.setGraph2(g2);
+            g3 = alarmService.SqlGetCaseTypesDayHistoryCnt(time);
+            getHistoryCntRes.setGraph3(g3);
         }
         else if (defer == 3){
             g1 = alarmService.getThreeDaysHistoryCnt(time);
             getHistoryCntRes.setGraph1(g1);
             g2 = alarmService.getThreeDaysAreasHistoryCnt(time);
             getHistoryCntRes.setGraph2(g2);
+            g3 = alarmService.SqlGetCaseTypesThreeDaysHistoryCnt(time);
+            getHistoryCntRes.setGraph3(g3);
         }
         else if (defer == 7){
             g1 = alarmService.getWeekHistoryCnt(time);
             getHistoryCntRes.setGraph1(g1);
             g2 = alarmService.getWeekAreasHistoryCnt(time);
             getHistoryCntRes.setGraph2(g2);
+            g3 = alarmService.SqlGetCaseTypesWeekHistoryCnt(time);
+            getHistoryCntRes.setGraph3(g3);
         }
         else{
             return CommonResult.fail("参数错误");

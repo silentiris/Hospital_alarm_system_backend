@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class AlarmCaseTypeTotal
 {
-    private String caseType;
+    private String caseTypeName;
 
     private Integer todayNew;
 

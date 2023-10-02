@@ -1,7 +1,8 @@
 package com.sipc.hospitalalarmsystem.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.sipc.hospitalalarmsystem.model.po.Monitor;
+
+import com.sipc.hospitalalarmsystem.model.po.Monitor.Monitor;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

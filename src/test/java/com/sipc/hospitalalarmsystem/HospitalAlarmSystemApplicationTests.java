@@ -2,7 +2,7 @@ package com.sipc.hospitalalarmsystem;
 
 import com.alibaba.excel.EasyExcel;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.GetAlarmRes;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import com.sipc.hospitalalarmsystem.service.RecordService;
 import com.plexpt.chatgpt.ChatGPT;

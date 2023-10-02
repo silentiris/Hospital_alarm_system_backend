@@ -29,6 +29,14 @@
             <artifactId>chatgpt</artifactId>
             <version>4.1.2</version>
         </dependency>
+        <!--uni-push-GeTui-->
+        <!-- https://mvnrepository.com/artifact/com.getui.push/restful-sdk -->
+        <dependency>
+            <groupId>com.getui.push</groupId>
+            <artifactId>restful-sdk</artifactId>
+            <version>1.0.0.15</version>
+        </dependency>
+
         <dependency>
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio</artifactId>
@@ -36,16 +44,18 @@
         </dependency>
         <!--ffmpeg-->
         <dependency>
-            <groupId>org.bytedeco</groupId>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>ffmpeg-platform</artifactId>
-            <version>5.0-1.5.7</version>
+            <version>4.0.2-1.4.3</version>
         </dependency>
         <!--javacv-->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv</artifactId>
-            <version>1.5.7</version>
+            <version>1.4.3</version>
         </dependency>
+
+        <!-- HttpClinet 核心包 -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

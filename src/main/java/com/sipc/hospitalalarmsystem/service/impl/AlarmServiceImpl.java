@@ -1,12 +1,10 @@
 package com.sipc.hospitalalarmsystem.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sipc.hospitalalarmsystem.dao.AlarmDao;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;

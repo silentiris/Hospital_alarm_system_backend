@@ -1,8 +1,7 @@
 package com.sipc.hospitalalarmsystem.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmCaseTypeTotal;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmTotal;
@@ -67,12 +66,12 @@ public interface AlarmDao extends BaseMapper<Alarm> {
 
     @Select("""
             SELECT
-              c.case_type,
+              c.case_type_name,
               SUM(CASE WHEN DATE(a.create_time) = CURDATE() THEN 1 ELSE 0 END) AS today_new,
               COUNT(*) AS total
             FROM alarm_info a\s
             JOIN case_type_info c ON a.case_type = c.id
-            GROUP BY c.case_type""")
+            GROUP BY c.case_type_name""")
     List<AlarmCaseTypeTotal> SqlGetAlarmCaseTypeTotal();
 
     @Select("""

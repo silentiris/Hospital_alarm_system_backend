@@ -66,12 +66,12 @@ public interface AlarmDao extends BaseMapper<Alarm> {
 
     @Select("""
             SELECT
-              c.case_type,
+              c.case_type_name,
               SUM(CASE WHEN DATE(a.create_time) = CURDATE() THEN 1 ELSE 0 END) AS today_new,
               COUNT(*) AS total
             FROM alarm_info a\s
             JOIN case_type_info c ON a.case_type = c.id
-            GROUP BY c.case_type""")
+            GROUP BY c.case_type_name""")
     List<AlarmCaseTypeTotal> SqlGetAlarmCaseTypeTotal();
 
     @Select("""

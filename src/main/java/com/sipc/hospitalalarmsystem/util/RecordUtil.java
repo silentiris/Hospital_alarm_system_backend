@@ -19,8 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.*;
-
-import static org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264;
+import static org.bytedeco.javacpp.avcodec.AV_CODEC_ID_H264;
 
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

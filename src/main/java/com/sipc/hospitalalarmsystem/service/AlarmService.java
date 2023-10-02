@@ -1,9 +1,7 @@
 package com.sipc.hospitalalarmsystem.service;
 
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmCaseTypeTotal;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 
 import java.util.List;

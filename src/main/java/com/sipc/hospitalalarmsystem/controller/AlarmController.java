@@ -5,6 +5,7 @@ import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
 import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import jakarta.validation.Valid;

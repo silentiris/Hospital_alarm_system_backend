@@ -1,8 +1,7 @@
 package com.sipc.hospitalalarmsystem.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmCaseTypeTotal;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmTotal;

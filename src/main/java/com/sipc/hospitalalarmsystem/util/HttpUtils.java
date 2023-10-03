@@ -134,6 +134,18 @@ public class HttpUtils {
     }
 
     /**
+     * @param url
+     * @param json
+     * @return {@link String}
+     */
+    public static String postJson(String url, String json) {
+        HttpPost post = new HttpPost(url);
+        post.setHeader("Content-type", "application/json");
+        post.setEntity(new StringEntity(json, UTF8));
+        return getRespString(post, null);
+    }
+
+    /**
      * 执行post请求获取响应（请求体包含文件）
      *
      * @param url    请求地址
@@ -246,7 +258,7 @@ public class HttpUtils {
      * @return HttpEntity
      */
     private static HttpEntity getHttpEntity(Map<String, String> params) {
-        List<BasicNameValuePair> pairs = new ArrayList<BasicNameValuePair>();
+        List<BasicNameValuePair> pairs = new ArrayList<>();
         for (Entry<String, String> entry : params.entrySet()) {
             pairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }

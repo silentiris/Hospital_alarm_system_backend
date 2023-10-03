@@ -7,10 +7,11 @@ import com.sipc.hospitalalarmsystem.util.TokenThreadLocalUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
+@Slf4j
 public class JwtInterceptor implements HandlerInterceptor {
 
 
@@ -35,6 +36,10 @@ public class JwtInterceptor implements HandlerInterceptor {
             } else {
                 response.getWriter().println(objectMapper.writeValueAsString(CommonResult.tokenNull()));
             }
+            log.warn("token验证失败");
+            log.warn("token: " + token);
+            log.warn("url: " + request.getRequestURL());
+            log.warn("header: " + request.getHeader("Authorization"));
             return false;
         }
         TokenThreadLocalUtil.getInstance().bind(token);

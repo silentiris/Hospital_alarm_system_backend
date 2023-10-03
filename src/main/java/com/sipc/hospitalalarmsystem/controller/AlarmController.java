@@ -1,6 +1,8 @@
 package com.sipc.hospitalalarmsystem.controller;
 
 import com.alibaba.excel.EasyExcel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
@@ -8,9 +10,11 @@ import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
+import com.sipc.hospitalalarmsystem.util.HttpUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.javacpp.presets.opencv_core;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,8 +25,8 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Validated
 @Slf4j
@@ -33,11 +37,38 @@ public class AlarmController {
 
     @Autowired
     AlarmService alarmService;
-
     @PostMapping("/receive")
     public CommonResult<BlankRes> receiveAlarm(@RequestParam(value = "cameraId",required = true) int cameraId,
                                                @RequestParam(value = "caseType",required = true) int caseType,
                                                @RequestParam(value = "clipId",required = true) String clipId) {
+        Map<String,String> paramMap = new HashMap<>();
+        paramMap.put("cid",""); //cid不填默认全发
+        paramMap.put("title","报警通知");
+        paramMap.put("content","您有一条新的报警信息，请及时处理");
+        Map<String,String> optMap = new HashMap<>();
+        Map<String,String> catMap = new HashMap<>();
+        catMap.put("/message/android/category","WORK");
+        optMap.put("HW", catMap.toString());
+        Map<String,Object> dateMap = new HashMap<>();
+        dateMap.put("date1",1);
+        dateMap.put("date2",1);
+        paramMap.put("options",optMap.toString());
+        paramMap.put("date",dateMap.toString());
+        Random random = new Random();
+        String randomString = random.ints(10, 0, 10)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining());
+        paramMap.put("request_id",randomString);
+        try {
+            String resJson = HttpUtils.postJson("https://fc-mp-e0386718-0219-4138-80a9-902540e76f67.next.bspapp.com/notice", new ObjectMapper().writeValueAsString(paramMap));
+            if(resJson.contains("success")){
+                log.info("发送报警通知成功");
+            }else {
+                log.error("发送报警通知失败");
+            }
+        } catch (JsonProcessingException e) {
+            log.error("发送报警通知失败");
+        }
         if (alarmService.receiveAlarm(cameraId, caseType,clipId))
             return CommonResult.success("接收成功");
         else

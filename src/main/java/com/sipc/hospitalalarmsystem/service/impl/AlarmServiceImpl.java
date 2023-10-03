@@ -54,22 +54,6 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         //根据warningLevel和时间进行降序排序
         if (alarms.isEmpty())
             return alarms;
-        alarms.sort((o1, o2) -> {
-            if (o1.getWarningLevel() > o2.getWarningLevel())
-                return -1;
-            else if (o1.getWarningLevel() < o2.getWarningLevel())
-                return 1;
-            else {
-                if (o1.getCreateTime().after(o2.getCreateTime()))
-                    return -1;
-                else if (o1.getCreateTime().before(o2.getCreateTime()))
-                    return 1;
-                else
-                    return 0;
-            }
-        });
-
-
 
         return alarms;
     }

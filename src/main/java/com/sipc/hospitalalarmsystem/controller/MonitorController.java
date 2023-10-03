@@ -13,6 +13,7 @@ import com.sipc.hospitalalarmsystem.service.MonitorService;
 import com.sipc.hospitalalarmsystem.util.JwtUtils;
 import com.sipc.hospitalalarmsystem.util.TokenThreadLocalUtil;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -94,10 +95,9 @@ public class MonitorController {
             return CommonResult.success(createMonitorRes);
     }
 
-    @GetMapping("/flask/image")
-    public CommonResult<String> getMonitorImg(){
-        Monitor monitor = JwtUtils.getMonitorByToken(TokenThreadLocalUtil.getInstance().getToken());
-        String img = monitorService.getMonitorImg(monitor.getId());
+    @GetMapping("/image/{monitorId}")
+    public CommonResult<String> getMonitorImg(@PathVariable @NotNull Integer monitorId){
+        String img = monitorService.getMonitorImg(monitorId);
         if (img == null) {
             return CommonResult.fail("获取图片失败");
         }

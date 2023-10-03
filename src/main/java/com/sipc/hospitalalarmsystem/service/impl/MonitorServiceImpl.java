@@ -136,7 +136,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
         try {
             return requestFlaskService.getMonitorImg(ip);
         }catch (Exception e){
-            log.error("获取监控图片失败");
+            log.error(e.getMessage());
             return null;
         }
     }

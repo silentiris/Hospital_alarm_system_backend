@@ -1,7 +1,7 @@
 package com.sipc.hospitalalarmsystem.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmCaseTypeTotal;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.AlarmTotal;
@@ -40,13 +40,13 @@ public interface AlarmDao extends BaseMapper<Alarm> {
             "<if test='time1 == null and time2 != null'>AND CREATE_TIME &lt;= #{time2}</if>" +
             "LIMIT #{pageOffset}, #{pageSize}" +
             "</script>")
-    List<SqlGetAlarmRes> selectByCondition(@Param("pageOffset") Integer pageOffset,
-                                  @Param("pageSize") Integer pageSize,
-                                  @Param("caseType") String caseType,
-                                  @Param("status") String status,
-                                  @Param("warningLevel") String warningLevel,
-                                  @Param("time1") String time1,
-                                  @Param("time2") String time2);
+    List<SqlGetAlarm> selectByCondition(@Param("pageOffset") Integer pageOffset,
+                                        @Param("pageSize") Integer pageSize,
+                                        @Param("caseType") String caseType,
+                                        @Param("status") String status,
+                                        @Param("warningLevel") String warningLevel,
+                                        @Param("time1") String time1,
+                                        @Param("time2") String time2);
 
 
     @Select("""
@@ -99,7 +99,7 @@ public interface AlarmDao extends BaseMapper<Alarm> {
             WHERE
             \talarm_info.id = #{alarmId}
             """)
-    SqlGetAlarmRes SqlGetAlarm(@Param("alarmId") Integer alarmId);
+    SqlGetAlarm SqlGetAlarm(@Param("alarmId") Integer alarmId);
 
     @Select("SELECT CASE WHEN HOUR ( create_time ) >= 0 AND HOUR ( create_time ) < 3 THEN '03:00' WHEN HOUR ( create_time ) >= 3 AND HOUR ( create_time ) < 6 THEN '06:00' WHEN HOUR ( create_time ) >= 6 AND HOUR ( create_time ) < 9 THEN '09:00' WHEN HOUR ( create_time ) >= 9 AND HOUR ( create_time ) < 12 THEN '12:00' WHEN HOUR ( create_time ) >= 12 AND HOUR ( create_time ) < 15 THEN '15:00' WHEN HOUR ( create_time ) >= 15 AND HOUR ( create_time ) < 18 THEN '18:00' WHEN HOUR ( create_time ) >= 18 AND HOUR ( create_time ) < 21 THEN '21:00' WHEN HOUR ( create_time ) >= 21 AND HOUR ( create_time ) < 24 THEN '24:00' END AS period, COUNT(*) AS cnt FROM alarm_info WHERE DATE ( create_time ) = #{date} GROUP BY period ORDER BY MIN( HOUR ( create_time ));")
     List<TimePeriod> SqlGetDayHistoryCnt(@Param("date") String date);

@@ -1,15 +1,21 @@
 package com.sipc.hospitalalarmsystem.controller;
 
+import com.sipc.hospitalalarmsystem.aop.Pass;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
-import com.sipc.hospitalalarmsystem.model.dto.res.Monitor.GetMonitorRes;
+import com.sipc.hospitalalarmsystem.model.dto.param.Monitor.CreateMonitorParam;
+import com.sipc.hospitalalarmsystem.model.dto.param.Monitor.UpdateMonitorParam;
+import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
+import com.sipc.hospitalalarmsystem.model.dto.res.Monitor.CreateMonitorRes;
+import com.sipc.hospitalalarmsystem.model.dto.res.Monitor.GetMonitorsPosRes;
+import com.sipc.hospitalalarmsystem.model.dto.res.Monitor.GetMonitorListRes;
 import com.sipc.hospitalalarmsystem.model.po.Monitor.Monitor;
 import com.sipc.hospitalalarmsystem.service.MonitorService;
+import com.sipc.hospitalalarmsystem.util.JwtUtils;
+import com.sipc.hospitalalarmsystem.util.TokenThreadLocalUtil;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,36 +35,72 @@ public class MonitorController {
     MonitorService monitorService;
 
     @GetMapping()
-    public CommonResult<List<GetMonitorRes>> getMonitorList(){
+    public CommonResult<List<GetMonitorListRes>> getMonitorList(){
 
         List<Monitor> sqlMonitors = monitorService.getMonitorList();
         if (sqlMonitors == null) {
             return CommonResult.fail("获取监控列表失败");
         }
-        List<GetMonitorRes> getMonitorResList = new ArrayList<>();
+        List<GetMonitorListRes> getMonitorListResList = new ArrayList<>();
         for (Monitor monitor : sqlMonitors) {
-            GetMonitorRes getMonitorRes = new GetMonitorRes();
-            GetMonitorRes.MonitorBorder monitorBorder = new GetMonitorRes.MonitorBorder();
-            monitorBorder.setLeftX(monitor.getLeftX());
-            monitorBorder.setLeftY(monitor.getLeftY());
-            monitorBorder.setRightX(monitor.getRightX());
-            monitorBorder.setRightY(monitor.getRightY());
-//            GetMonitorRes.MonitorAbilities monitorAbilities = new GetMonitorRes.MonitorAbilities();
-
-
-
-            getMonitorRes.setId(monitor.getId());
-            getMonitorRes.setName(monitor.getName());
-            getMonitorRes.setDeal(monitor.getRunning()?"正在运行":"停止");
-            getMonitorRes.setDepartment(monitor.getArea());
-            getMonitorRes.setLeader(monitor.getLeader());
-            getMonitorRes.setRunning(monitor.getRunning());
-
+            GetMonitorListRes getMonitorListRes = new GetMonitorListRes(monitor);
+            getMonitorListResList.add(getMonitorListRes);
         }
 
-
-
-        return CommonResult.success(getMonitorResList);
+        return CommonResult.success(getMonitorListResList);
     }
 
+    @GetMapping("/map")
+    public CommonResult<GetMonitorsPosRes> getMonitorsPos(){
+        List<Monitor> sqlMonitors = monitorService.getMonitorList();
+        if (sqlMonitors == null) {
+            return CommonResult.fail("获取监控列表失败");
+        }
+        GetMonitorsPosRes getMonitorsPosRes = new GetMonitorsPosRes(sqlMonitors);
+
+        return CommonResult.success(getMonitorsPosRes);
+    }
+
+    @GetMapping("/flask/info")
+    public CommonResult<Monitor> getMonitor(){
+        Monitor monitor = JwtUtils.getMonitorByToken(TokenThreadLocalUtil.getInstance().getToken());
+        monitor = monitorService.getMonitorById(monitor.getId());
+        if (monitor == null) {
+            return CommonResult.fail("token错误");
+        }
+
+        return CommonResult.success(monitor);
+    }
+
+    @PostMapping("/update")
+    public CommonResult<BlankRes> updateMonitor(@Valid @RequestBody UpdateMonitorParam updateMonitorParam){
+        if (!monitorService.updateMonitor(updateMonitorParam)){
+            return CommonResult.fail("更新失败");
+        }
+        return CommonResult.success("更新成功");
+    }
+
+    @PostMapping("/flask/create")
+    @Pass
+    public CommonResult<CreateMonitorRes> createMonitor(@Valid @RequestBody CreateMonitorParam createMonitorParam){
+            CreateMonitorRes createMonitorRes = new CreateMonitorRes();
+            Integer id = monitorService.createMonitor(createMonitorParam);
+            if (id==-1){
+                return CommonResult.fail("创建失败");
+            }
+            createMonitorRes.setId(id);
+            createMonitorRes.setToken(JwtUtils.signMonitor(id));
+
+            return CommonResult.success(createMonitorRes);
+    }
+
+    @GetMapping("/flask/image")
+    public CommonResult<String> getMonitorImg(){
+        Monitor monitor = JwtUtils.getMonitorByToken(TokenThreadLocalUtil.getInstance().getToken());
+        String img = monitorService.getMonitorImg(monitor.getId());
+        if (img == null) {
+            return CommonResult.fail("获取图片失败");
+        }
+        return CommonResult.success(img);
+    }
 }

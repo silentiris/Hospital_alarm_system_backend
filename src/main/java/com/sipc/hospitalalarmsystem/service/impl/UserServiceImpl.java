@@ -24,7 +24,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         password = MD5Util.MD5Encode(password);
         User user = getOne(new QueryWrapper<User>().eq("user_name", username).eq("password", password));;
         if (user != null) {
-            return JwtUtils.sign(user);
+            return JwtUtils.signUser(user);
         }
         return null;
     }
@@ -43,6 +43,22 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
             return false;
         }
 
+    }
+
+    @Override
+    public Boolean updatePassword(Integer id, String oldPassword, String newPassword){
+        User user = getOne(new QueryWrapper<User>().eq("id", id).eq("password", MD5Util.MD5Encode(oldPassword)));
+        if (user == null){
+            return false;
+        }
+        user.setPassword(MD5Util.MD5Encode(newPassword));
+        try{
+            updateById(user);
+            return true;
+        }catch (Exception e){
+            log.error("修改密码失败");
+            return false;
+        }
     }
 
 }

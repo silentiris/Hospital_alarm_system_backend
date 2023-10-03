@@ -4,12 +4,15 @@ import com.sipc.hospitalalarmsystem.aop.Pass;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.user.LoginParam;
 import com.sipc.hospitalalarmsystem.model.dto.param.user.RegisterParam;
+import com.sipc.hospitalalarmsystem.model.dto.param.user.UpdatePasswordParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
 import com.sipc.hospitalalarmsystem.model.dto.res.User.LoginRes;
 import com.sipc.hospitalalarmsystem.model.po.User.User;
 import com.sipc.hospitalalarmsystem.service.UserService;
 import com.sipc.hospitalalarmsystem.util.JwtUtils;
+import com.sipc.hospitalalarmsystem.util.TokenThreadLocalUtil;
 import jakarta.validation.Valid;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +31,9 @@ public class UserController {
 
     @Pass
     @PostMapping("/login")
-    public CommonResult<LoginRes> login(@Valid @RequestBody LoginParam loginParam){
-        String token = userService.login(loginParam.getUsername(),loginParam.getPassword());
-        if (token == null){
+    public CommonResult<LoginRes> login(@Valid @RequestBody LoginParam loginParam) {
+        String token = userService.login(loginParam.getUsername(), loginParam.getPassword());
+        if (token == null) {
             return CommonResult.fail("用户名或密码错误");
         }
         User user = JwtUtils.getUserByToken(token);
@@ -42,13 +45,26 @@ public class UserController {
     }
 
 
+    @Pass
     @PostMapping("/register")
-    public CommonResult<BlankRes> register(@Valid @RequestBody RegisterParam registerParam){
-        if (userService.register(registerParam.getUsername(),registerParam.getPassword(),registerParam.getRole())){
+    public CommonResult<BlankRes> register(@Valid @RequestBody RegisterParam registerParam) {
+        if (userService.register(registerParam.getUsername(), registerParam.getPassword(), registerParam.getRole())) {
             return CommonResult.success("注册成功");
-        }else{
+        } else {
             return CommonResult.fail("注册失败");
         }
     }
 
+    @PostMapping("/update")
+    public CommonResult<BlankRes> updatePassword(@Valid @RequestBody UpdatePasswordParam updatePasswordParam) {
+        User user = JwtUtils.getUserByToken(TokenThreadLocalUtil.getInstance().getToken());
+        if (user == null) {
+            return CommonResult.fail("token错误");
+        }
+        if (userService.updatePassword(user.getId(), updatePasswordParam.getOldPassword(), updatePasswordParam.getNewPassword())) {
+            return CommonResult.success("修改成功");
+        }
+
+        return CommonResult.fail("密码错误");
+    }
 }

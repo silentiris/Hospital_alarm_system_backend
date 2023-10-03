@@ -2,7 +2,9 @@ package com.sipc.hospitalalarmsystem.util;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -11,8 +13,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,6 +42,12 @@ public class HttpUtils {
      * 字节流数组大小（1MB）
      */
     private final static int BYTE_ARRAY_LENGTH = 1024 * 1024;
+
+    private static final RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15000)
+            .setConnectionRequestTimeout(15000)
+            .setSocketTimeout(15000)
+            .setRedirectsEnabled(true)
+            .build();
 
     /**
      * 执行get请求获取响应
@@ -102,8 +113,8 @@ public class HttpUtils {
      * @param json 请求的JSON数据
      * @return 响应内容
      */
-    public static String postJson(String url, String json) {
-        return postJson(url, null, json);
+    public static String postJson(String url, String json,String token) {
+        return postJson(url, null, json,token);
     }
 
     /**
@@ -114,9 +125,10 @@ public class HttpUtils {
      * @param json    请求的JSON数据
      * @return 响应内容
      */
-    public static String postJson(String url, Map<String, String> headers, String json) {
+    public static String postJson(String url, Map<String, String> headers, String json,String token) {
         HttpPost post = new HttpPost(url);
         post.setHeader("Content-type", "application/json");
+        post.setHeader("Authorization",token);
         post.setEntity(new StringEntity(json, UTF8));
         return getRespString(post, headers);
     }
@@ -205,6 +217,25 @@ public class HttpUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get请求下载MultipartFile
+     *
+     * @param url      下载地址
+     */
+
+    public static InputStream GetInputStream (String url, String token) throws Exception{
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet get = new HttpGet(url);
+        get.setConfig(requestConfig);
+        get.setHeader("Authorization",token);
+        try (CloseableHttpResponse response = httpClient.execute(get)) {
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new RuntimeException("Failed to download file from " + url + ". Status: " + response.getStatusLine());
+            }
+            return response.getEntity().getContent();
         }
     }
 

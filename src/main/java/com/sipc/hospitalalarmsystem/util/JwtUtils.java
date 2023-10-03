@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.sipc.hospitalalarmsystem.model.po.Monitor.Monitor;
 import com.sipc.hospitalalarmsystem.model.po.User.User;
 
 import java.util.Date;
@@ -12,13 +13,19 @@ public class JwtUtils {
     public static final long EXPIRE_TIME = (long) 1000 * 60 * 60 * 24 * 15;
     public static final String SECRET = "SIPC115";
 
-    public static String sign(User user) {
+    public static String signUser(User user) {
         Date expireDate = new Date(System.currentTimeMillis() + EXPIRE_TIME);
         return JWT.create()
                 .withClaim("id",user.getId())
                 .withClaim("role", user.getRole())
                 .withClaim("userName", user.getUserName())
                 .withExpiresAt(expireDate)
+                .sign(Algorithm.HMAC256(SECRET));
+    }
+
+    public static String signMonitor(Integer id){
+        return JWT.create()
+                .withClaim("id",id)
                 .sign(Algorithm.HMAC256(SECRET));
     }
 
@@ -39,6 +46,13 @@ public class JwtUtils {
         user.setUserName(decodedJWT.getClaim("userName").asString());
         user.setRole(decodedJWT.getClaim("role").asInt());
         return user;
+    }
+
+    public static Monitor getMonitorByToken(String token){
+        DecodedJWT decodedJWT = JWT.decode(token);
+        Monitor monitor = new Monitor();
+        monitor.setId(decodedJWT.getClaim("id").asInt());
+        return monitor;
     }
 
 }

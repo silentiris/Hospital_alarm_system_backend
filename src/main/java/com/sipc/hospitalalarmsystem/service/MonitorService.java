@@ -17,4 +17,8 @@ public interface MonitorService {
     Boolean updateMonitor(UpdateMonitorParam updateMonitorParam);
 
     String getMonitorIPById(Integer id);
+
+    String getMonitorImg(Integer id);
+
+    Boolean deleteMonitor(Integer id);
 }

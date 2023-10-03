@@ -11,6 +11,7 @@ import java.security.BasicPermission;
 
 @Data
 public class UpdateMonitorParam {
+    //TODO 改字段要改这里
     private Integer id;
     private String name;
     private String area;
@@ -22,7 +23,8 @@ public class UpdateMonitorParam {
     private Boolean fall;
     private Boolean flame;
     private Boolean smoke;
-    private Boolean smoking;
+    private Boolean wave;
+    private Boolean punch;
     private Integer leftX;
     private Integer leftY;
     private Integer rightX;

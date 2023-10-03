@@ -94,6 +94,13 @@ public class MonitorController {
             return CommonResult.success(createMonitorRes);
     }
 
-
-
+    @GetMapping("/flask/image")
+    public CommonResult<String> getMonitorImg(){
+        Monitor monitor = JwtUtils.getMonitorByToken(TokenThreadLocalUtil.getInstance().getToken());
+        String img = monitorService.getMonitorImg(monitor.getId());
+        if (img == null) {
+            return CommonResult.fail("获取图片失败");
+        }
+        return CommonResult.success(img);
+    }
 }

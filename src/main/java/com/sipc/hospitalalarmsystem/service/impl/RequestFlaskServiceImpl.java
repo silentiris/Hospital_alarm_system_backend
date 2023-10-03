@@ -3,10 +3,13 @@ package com.sipc.hospitalalarmsystem.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sipc.hospitalalarmsystem.model.dto.res.FlaskResponse.updateMonitorAreaRes;
 import com.sipc.hospitalalarmsystem.service.RequestFlaskService;
+import com.sipc.hospitalalarmsystem.util.Base64Util;
 import com.sipc.hospitalalarmsystem.util.HttpUtils;
 import com.sipc.hospitalalarmsystem.util.JacksonUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,5 +51,14 @@ public class RequestFlaskServiceImpl implements RequestFlaskService {
         String response = HttpUtils.postJson("http://"+ip+"/api/v1/monitor-device/type",json,FLASK_TOKEN);
         updateMonitorAreaRes res = JacksonUtils.json2pojo(response, updateMonitorAreaRes.class);
         return res.getMsg().equals("success");
+    }
+
+    @Override
+    public String getMonitorImg(String ip) throws Exception{
+        InputStream inputStream = HttpUtils.GetInputStream("http://"+ip+"/api/v1/monitor-device/img",FLASK_TOKEN);
+        if (inputStream == null) {
+            return null;
+        }
+        return Base64Util.convertToBase64(inputStream);
     }
 }

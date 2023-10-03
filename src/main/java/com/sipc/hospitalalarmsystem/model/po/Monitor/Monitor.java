@@ -21,7 +21,8 @@ public class Monitor {
     private Boolean fall;
     private Boolean flame;
     private Boolean smoke;
-    private Boolean smoking;
+    private Boolean wave;
+    private Boolean punch;
     private Boolean running;
     private Integer leftX;
     private Integer leftY;

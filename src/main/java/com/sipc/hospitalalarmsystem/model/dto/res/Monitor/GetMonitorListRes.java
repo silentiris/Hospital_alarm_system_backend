@@ -34,7 +34,7 @@ public class GetMonitorListRes {
     @Data
     public static class MonitorAbility {
         public MonitorAbility(Integer caseType,Boolean checked){
-            this.name = caseType == 1?"进入危险区域":caseType == 2?"烟雾":caseType == 3?"摔倒":caseType==4?"明火":"吸烟";
+            this.name = caseType == 1?"进入危险区域":caseType == 2?"挥手":caseType == 3?"摔倒":caseType==4?"明火":caseType == 5?"吸烟":"打拳";
             this.value = caseType;
             this.checked = checked;
         }
@@ -55,10 +55,11 @@ public class GetMonitorListRes {
         this.border.add(new MonitorBorder(monitor));
         this.ability = new ArrayList<>();
         this.ability.add(new MonitorAbility(1,monitor.getDangerArea()));
-        this.ability.add(new MonitorAbility(2,monitor.getSmoke()));
+        this.ability.add(new MonitorAbility(2,monitor.getWave()));
         this.ability.add(new MonitorAbility(3,monitor.getFall()));
         this.ability.add(new MonitorAbility(4,monitor.getFlame()));
-        this.ability.add(new MonitorAbility(5,monitor.getSmoking()));
+        this.ability.add(new MonitorAbility(5,monitor.getSmoke()));
+        this.ability.add(new MonitorAbility(6,monitor.getPunch()));
     }
 
 

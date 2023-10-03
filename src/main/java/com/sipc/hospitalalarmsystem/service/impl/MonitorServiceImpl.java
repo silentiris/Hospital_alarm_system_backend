@@ -7,9 +7,8 @@ import com.sipc.hospitalalarmsystem.model.dto.param.Monitor.UpdateMonitorParam;
 import com.sipc.hospitalalarmsystem.model.po.Monitor.Monitor;
 import com.sipc.hospitalalarmsystem.service.MonitorService;
 import com.sipc.hospitalalarmsystem.service.RequestFlaskService;
-import com.sipc.hospitalalarmsystem.util.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.methods.HttpPost;
+import org.bytedeco.javacpp.presets.opencv_core;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +34,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
 
     @Override
     public Integer createMonitor(CreateMonitorParam createMonitorParam) {
+        //TODO 改字段要改这里
         Monitor monitor = new Monitor();
         monitor.setName(createMonitorParam.getName());
         monitor.setArea(createMonitorParam.getArea());
@@ -46,7 +46,8 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
         monitor.setFall(false);
         monitor.setFlame(false);
         monitor.setSmoke(false);
-        monitor.setSmoking(false);
+        monitor.setPunch(false);
+        monitor.setWave(false);
         monitor.setDangerArea(false);
         monitor.setStreamLink(createMonitorParam.getIp());
         monitor.setLeftX(createMonitorParam.getLeftX());
@@ -71,6 +72,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
 
     @Override
     public Boolean updateMonitor(UpdateMonitorParam updateMonitorParam){
+        //TODO 改字段要改这里
         Monitor monitor = new Monitor();
         monitor.setId(updateMonitorParam.getId());
         monitor.setName(updateMonitorParam.getName());
@@ -81,7 +83,8 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
         monitor.setFall(updateMonitorParam.getFall());
         monitor.setFlame(updateMonitorParam.getFlame());
         monitor.setSmoke(updateMonitorParam.getSmoke());
-        monitor.setSmoking(updateMonitorParam.getSmoking());
+        monitor.setPunch(updateMonitorParam.getPunch());
+        monitor.setWave(updateMonitorParam.getWave());
         monitor.setDangerArea(updateMonitorParam.getDangerArea());
         monitor.setStreamLink(updateMonitorParam.getIp());
         monitor.setLeftX(updateMonitorParam.getLeftX());
@@ -100,10 +103,10 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
             //0 火，1 抽烟，2跌倒，3挥拳，4挥手，5危险区域
             //TODO 改字段的时候要改这里
             ability.add(updateMonitorParam.getFlame());
-            ability.add(updateMonitorParam.getSmoking());
+            ability.add(updateMonitorParam.getSmoke());
             ability.add(updateMonitorParam.getFall());
-            ability.add(updateMonitorParam.getDangerArea());
-            ability.add(updateMonitorParam.getDangerArea());
+            ability.add(updateMonitorParam.getPunch());
+            ability.add(updateMonitorParam.getWave());
             ability.add(updateMonitorParam.getDangerArea());
             if (!requestFlaskService.updateMonitorArea(updateMonitorParam.getIp(),area) && !requestFlaskService.updateMonitorAbility(updateMonitorParam.getIp(),ability)){
                 return false;
@@ -113,6 +116,28 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
         }catch (Exception e){
             log.error("更新监控失败");
             return false;
+        }
+    }
+
+    @Override
+    public Boolean deleteMonitor(Integer id){
+        try{
+            removeById(id);
+            return true;
+        }catch (Exception e){
+            log.error("删除监控失败");
+            return false;
+        }
+    }
+
+    @Override
+    public String getMonitorImg(Integer id){
+        String ip = getMonitorIPById(id);
+        try {
+            return requestFlaskService.getMonitorImg(ip);
+        }catch (Exception e){
+            log.error("获取监控图片失败");
+            return null;
         }
     }
 }

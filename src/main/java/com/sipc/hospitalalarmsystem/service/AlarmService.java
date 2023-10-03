@@ -1,18 +1,17 @@
 package com.sipc.hospitalalarmsystem.service;
 
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface AlarmService {
     Boolean receiveAlarm(Integer cameraId,Integer caseType,String clipLink);
 
-    List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String time1,String time2);
+    List<SqlGetAlarm> queryAlarmList(Integer pageNum, Integer pageSize, Integer caseType, Integer status, Integer warningLevel, String time1, String time2);
 
-    SqlGetAlarmRes getAlarm(Integer alarmId);
+    SqlGetAlarm getAlarm(Integer alarmId);
 
     Long getAlarmCnt(Integer caseType, String time1, String time2);
 

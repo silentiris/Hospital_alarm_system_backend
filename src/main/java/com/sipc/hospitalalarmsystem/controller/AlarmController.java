@@ -5,7 +5,7 @@ import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
 import com.sipc.hospitalalarmsystem.model.dto.res.BlankRes;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import jakarta.validation.Valid;
@@ -46,7 +46,7 @@ public class AlarmController {
 
     @GetMapping("/{alarmId}")
     public CommonResult<GetAlarmRes> getAlarm(@PathVariable @NotNull(message = "alarmId不能为空") Integer alarmId) {
-        SqlGetAlarmRes alarm = alarmService.getAlarm(alarmId);
+        SqlGetAlarm alarm = alarmService.getAlarm(alarmId);
         if (alarm == null)
             return CommonResult.fail("查询失败");
 
@@ -114,14 +114,14 @@ public class AlarmController {
                                                           @RequestParam(value = "time1",required = false) String time1,
                                                           @RequestParam(value = "time2",required = false)  String time2) {
 
-        List<SqlGetAlarmRes> alarmList = alarmService.queryAlarmList(pageNum, pageSize, caseType, status, warningLevel, time1, time2);
+        List<SqlGetAlarm> alarmList = alarmService.queryAlarmList(pageNum, pageSize, caseType, status, warningLevel, time1, time2);
 
         if (alarmList == null)
             return CommonResult.fail("查询失败");
 
         List<GetAlarmRes> res = new ArrayList<>();
 
-        for(SqlGetAlarmRes alarm : alarmList){
+        for(SqlGetAlarm alarm : alarmList){
             res.add(SqlGetAlarmRes2GetAlarmRes(alarm));
         }
         QueryAlarmListRes queryAlarmListRes = new QueryAlarmListRes();
@@ -162,9 +162,9 @@ public class AlarmController {
         EasyExcel.write(Filename, GetAlarmRes.class)
                 .sheet("报警数据")
                 .doWrite(() -> {
-                    List<SqlGetAlarmRes> alarmRes =  alarmService.queryAlarmList(1, 5000, null, null, null, null, null);
+                    List<SqlGetAlarm> alarmRes =  alarmService.queryAlarmList(1, 5000, null, null, null, null, null);
                     List<GetAlarmRes> res = new ArrayList<>();
-                    for (SqlGetAlarmRes alarmRe : alarmRes) {
+                    for (SqlGetAlarm alarmRe : alarmRes) {
                         res.add(SqlGetAlarmRes2GetAlarmRes(alarmRe));
                     }
                     return res;
@@ -179,18 +179,18 @@ public class AlarmController {
         return ResponseEntity.ok().body(bytes);
         }
 
-    static public GetAlarmRes SqlGetAlarmRes2GetAlarmRes(SqlGetAlarmRes sqlGetAlarmRes){
+    static public GetAlarmRes SqlGetAlarmRes2GetAlarmRes(SqlGetAlarm sqlGetAlarm){
         GetAlarmRes getAlarmRes = new GetAlarmRes();
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd hh:mm");
-        getAlarmRes.setId(sqlGetAlarmRes.getId());
-        getAlarmRes.setName(sqlGetAlarmRes.getName());
-        getAlarmRes.setEventName(sqlGetAlarmRes.getCaseTypeName());
-        getAlarmRes.setLevel(sqlGetAlarmRes.getWarningLevel());
-        getAlarmRes.setDate(sdf.format(sqlGetAlarmRes.getCreateTime()));
-        getAlarmRes.setDepartment(sqlGetAlarmRes.getArea());
-        getAlarmRes.setDeal(sqlGetAlarmRes.getStatus() ? "已处理":"未处理");
-        getAlarmRes.setContent(sqlGetAlarmRes.getProcessingContent());
-        getAlarmRes.setVideo(sqlGetAlarmRes.getClipLink());
+        getAlarmRes.setId(sqlGetAlarm.getId());
+        getAlarmRes.setName(sqlGetAlarm.getName());
+        getAlarmRes.setEventName(sqlGetAlarm.getCaseTypeName());
+        getAlarmRes.setLevel(sqlGetAlarm.getWarningLevel());
+        getAlarmRes.setDate(sdf.format(sqlGetAlarm.getCreateTime()));
+        getAlarmRes.setDepartment(sqlGetAlarm.getArea());
+        getAlarmRes.setDeal(sqlGetAlarm.getStatus() ? "已处理":"未处理");
+        getAlarmRes.setContent(sqlGetAlarm.getProcessingContent());
+        getAlarmRes.setVideo(sqlGetAlarm.getClipLink());
         return getAlarmRes;
     }
 }

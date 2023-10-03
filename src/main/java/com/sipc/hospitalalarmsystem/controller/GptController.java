@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -40,5 +41,10 @@ public class GptController {
         log.info("问题：" + param.getMessage() + "\n回答：" + text);
 
         return CommonResult.success(text);
+    }
+
+    @PostMapping("/sse")
+    public SseEmitter SseChat(@Valid @RequestBody ChatParam param){
+        return gptService.getSSEmitter(param.getId(),param.getMessage());
     }
 }

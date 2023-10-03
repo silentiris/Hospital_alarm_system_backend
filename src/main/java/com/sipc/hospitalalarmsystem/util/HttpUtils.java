@@ -102,8 +102,8 @@ public class HttpUtils {
      * @param json 请求的JSON数据
      * @return 响应内容
      */
-    public static String postJson(String url, String json) {
-        return postJson(url, null, json);
+    public static String postJson(String url, String json,String token) {
+        return postJson(url, null, json,token);
     }
 
     /**
@@ -114,9 +114,10 @@ public class HttpUtils {
      * @param json    请求的JSON数据
      * @return 响应内容
      */
-    public static String postJson(String url, Map<String, String> headers, String json) {
+    public static String postJson(String url, Map<String, String> headers, String json,String token) {
         HttpPost post = new HttpPost(url);
         post.setHeader("Content-type", "application/json");
+        post.setHeader("Authorization",token);
         post.setEntity(new StringEntity(json, UTF8));
         return getRespString(post, headers);
     }

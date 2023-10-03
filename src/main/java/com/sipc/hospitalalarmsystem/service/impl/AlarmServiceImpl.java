@@ -4,12 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sipc.hospitalalarmsystem.dao.AlarmDao;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
-import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarmRes;
+import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
+import com.sipc.hospitalalarmsystem.service.MonitorService;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.javacpp.presets.opencv_core;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -20,11 +21,14 @@ import java.util.*;
 @Slf4j
 public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements AlarmService {
 
-
+    @Autowired
+    MonitorServiceImpl monitorServiceImpl;
 
     @Override
     public Boolean receiveAlarm(Integer cameraID, Integer caseType,String clipLink){
         log.info("receive alarm from camera: "+cameraID+" caseType: "+caseType);
+        //TODO 从OSS获取clip地址
+        monitorServiceImpl.getBaseMapper().MonitorAlarmCntPlusOne(cameraID);
         Alarm alarm = new Alarm();
         alarm.setClipLink(clipLink);
         alarm.setCaseType(caseType);
@@ -36,17 +40,17 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
     }
 
     @Override
-    public SqlGetAlarmRes getAlarm(Integer alarmId){
+    public SqlGetAlarm getAlarm(Integer alarmId){
         //TODO 从OSS获取clip地址
         return this.baseMapper.SqlGetAlarm(alarmId);
     }
 
 
-    public  List<SqlGetAlarmRes> queryAlarmList(Integer pageNum,Integer pageSize,Integer caseType, Integer status, Integer warningLevel, String time1,String time2) {
+    public  List<SqlGetAlarm> queryAlarmList(Integer pageNum, Integer pageSize, Integer caseType, Integer status, Integer warningLevel, String time1, String time2) {
 
 
         //TODO 从OSS获取clip地址
-        List<SqlGetAlarmRes> alarms = this.baseMapper.selectByCondition(pageNum-1,pageSize,caseType != null?caseType.toString():null, status != null?status.toString():null, warningLevel!=null?warningLevel.toString():null, time1, time2);
+        List<SqlGetAlarm> alarms = this.baseMapper.selectByCondition(pageNum-1,pageSize,caseType != null?caseType.toString():null, status != null?status.toString():null, warningLevel!=null?warningLevel.toString():null, time1, time2);
         //根据warningLevel和时间进行降序排序
         if (alarms.isEmpty())
             return alarms;
@@ -153,7 +157,7 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         List<String> allPeriods = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
         for (int i = 0; i < 3; i++) {
             allPeriods.add(sdf.format(calendar.getTime()));
             calendar.add(Calendar.DAY_OF_YEAR, -1);
@@ -169,7 +173,7 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         List<String> allPeriods = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
         for (int i = 0; i < 7; i++) {
             allPeriods.add(sdf.format(calendar.getTime()));
             calendar.add(Calendar.DAY_OF_YEAR, -1);

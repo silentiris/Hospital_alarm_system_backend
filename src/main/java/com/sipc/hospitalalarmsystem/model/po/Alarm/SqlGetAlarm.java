@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * &#064;date 2023-09-13 17:53
  */
 @Data
-public class SqlGetAlarmRes {
+public class SqlGetAlarm {
 
     private Integer id;
     private String clipLink;

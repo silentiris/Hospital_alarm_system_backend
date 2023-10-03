@@ -13,6 +13,7 @@ public class Monitor {
     private String name;
     private String area;
     private String leader;
+    private Integer alarmCnt;
     private String streamLink;
     private Double latitude;
     private Double longitude;
@@ -20,6 +21,7 @@ public class Monitor {
     private Boolean fall;
     private Boolean flame;
     private Boolean smoke;
+    private Boolean smoking;
     private Boolean running;
     private Integer leftX;
     private Integer leftY;

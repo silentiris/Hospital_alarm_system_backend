@@ -1,6 +1,7 @@
 package com.sipc.hospitalalarmsystem.service.impl;
 
 import com.plexpt.chatgpt.ChatGPT;
+import com.plexpt.chatgpt.ChatGPTStream;
 import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
 import com.plexpt.chatgpt.entity.chat.Message;
 import com.sipc.hospitalalarmsystem.model.dto.param.gpt.ChatParam;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -31,6 +33,8 @@ public class GptServiceImpl implements GptService {
     final KeyManager keyManager;
 
     private static Map<String, List<Message>> context = new HashMap<>();
+
+    static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
     public List<Message> get(String id) {
         List<Message> messages = context.get(id);
@@ -55,7 +59,6 @@ public class GptServiceImpl implements GptService {
     @Override
     public Message getText(ChatParam param) {
 
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
         String prompt = param.buildPrompt();
         String APIKEY = keyManager.getKey();
 
@@ -89,4 +92,32 @@ public class GptServiceImpl implements GptService {
         }
     }
 
+    @Override
+    public SseEmitter getSSEmitter(String id,String prompt){
+
+        String APIKEY = keyManager.getKey();
+        ChatGPTStream chatGPTStream = ChatGPTStream.builder()
+                .timeout(50)
+                .apiKey(APIKEY)
+                .proxy(proxy)
+                .apiHost("https://api.openai.com/")
+                .build()
+                .init();
+
+        SseEmitter sseEmitter = new SseEmitter(-1L);
+
+        GPTEventSourceListener listener = new GPTEventSourceListener(sseEmitter);
+        Message message = Message.of(prompt);
+
+        List<Message> messages = get(id);
+        messages.add(message);
+        listener.setOnComplate(msg -> {
+            add(id, message);
+            add(id, Message.ofAssistant(msg));
+
+        });
+        chatGPTStream.streamChatCompletion(messages, listener);
+
+        return sseEmitter;
+    }
 }

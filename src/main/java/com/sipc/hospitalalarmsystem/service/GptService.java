@@ -11,4 +11,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public interface GptService {
 
     Message getText(ChatParam chatParam);
+
+    SseEmitter getSSEmitter(String id,String prompt);
 }

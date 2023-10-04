@@ -14,9 +14,5 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "keys")
 public class KeyConfig {
-
-
     List<String> list = new ArrayList<>();
-
-
 }

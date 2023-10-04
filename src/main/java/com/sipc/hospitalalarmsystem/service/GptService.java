@@ -12,5 +12,4 @@ public interface GptService {
 
     Message getText(ChatParam chatParam);
 
-    SseEmitter getSSEmitter(String id,String prompt);
 }

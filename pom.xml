@@ -36,7 +36,11 @@
             <artifactId>restful-sdk</artifactId>
             <version>1.0.0.15</version>
         </dependency>
-
+        <!--websocket-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio</artifactId>

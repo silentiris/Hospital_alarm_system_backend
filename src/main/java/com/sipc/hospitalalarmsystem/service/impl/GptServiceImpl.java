@@ -92,32 +92,5 @@ public class GptServiceImpl implements GptService {
         }
     }
 
-    @Override
-    public SseEmitter getSSEmitter(String id,String prompt){
 
-        String APIKEY = keyManager.getKey();
-        ChatGPTStream chatGPTStream = ChatGPTStream.builder()
-                .timeout(50)
-                .apiKey(APIKEY)
-                .proxy(proxy)
-                .apiHost("https://api.openai.com/")
-                .build()
-                .init();
-
-        SseEmitter sseEmitter = new SseEmitter(-1L);
-
-        GPTEventSourceListener listener = new GPTEventSourceListener(sseEmitter);
-        Message message = Message.of(prompt);
-
-        List<Message> messages = get(id);
-        messages.add(message);
-        listener.setOnComplate(msg -> {
-            add(id, message);
-            add(id, Message.ofAssistant(msg));
-
-        });
-        chatGPTStream.streamChatCompletion(messages, listener);
-
-        return sseEmitter;
-    }
 }

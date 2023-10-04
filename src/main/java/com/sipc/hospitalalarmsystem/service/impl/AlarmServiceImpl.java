@@ -141,14 +141,17 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         List<String> allPeriods = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (int i = 0; i < 3; i++) {
             allPeriods.add(sdf.format(calendar.getTime()));
             calendar.add(Calendar.DAY_OF_YEAR, -1);
         }
         List<TimePeriod> timePeriods = this.baseMapper.SqlGetThreeDaysHistoryCnt(date);
         Alignment(allPeriods, timePeriods);
-
+        //只保留月份和日期
+        for (TimePeriod tp : timePeriods) {
+            tp.setPeriod(tp.getPeriod().substring(5));
+        }
         return timePeriods;
     }
 
@@ -157,14 +160,17 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
         List<String> allPeriods = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (int i = 0; i < 7; i++) {
             allPeriods.add(sdf.format(calendar.getTime()));
             calendar.add(Calendar.DAY_OF_YEAR, -1);
         }
         List<TimePeriod> timePeriods = this.baseMapper.SqlGetWeekHistoryCnt(date);
         Alignment(allPeriods, timePeriods);
-
+        //只保留月份和日期
+        for (TimePeriod tp : timePeriods) {
+            tp.setPeriod(tp.getPeriod().substring(5));
+        }
         return timePeriods;
     }
 

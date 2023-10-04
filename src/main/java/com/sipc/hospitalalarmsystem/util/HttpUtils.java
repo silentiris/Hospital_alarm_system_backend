@@ -16,8 +16,6 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -233,12 +231,12 @@ public class HttpUtils {
     }
 
     /**
-     * Get请求下载MultipartFile
+     * Get请求下载Base64编码文件
      *
      * @param url      下载地址
      */
 
-    public static InputStream GetInputStream (String url, String token) throws Exception{
+    public static String GetBase64(String url, String token) throws RuntimeException{
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
@@ -247,7 +245,9 @@ public class HttpUtils {
             if (response.getStatusLine().getStatusCode() != 200) {
                 throw new RuntimeException("Failed to download file from " + url + ". Status: " + response.getStatusLine());
             }
-            return response.getEntity().getContent();
+            return Base64Util.inputStream2Base64(response.getEntity().getContent());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to download file from " + url, e);
         }
     }
 

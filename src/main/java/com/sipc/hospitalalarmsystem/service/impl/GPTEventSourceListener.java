@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
 import com.plexpt.chatgpt.entity.chat.Message;
 import com.sipc.hospitalalarmsystem.util.SseHelper;
+import jakarta.websocket.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -14,6 +15,7 @@ import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -27,7 +29,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class GPTEventSourceListener extends EventSourceListener {
 
-    final SseEmitter sseEmitter;
+    final Session session;
 
     String last = "";
     @Setter
@@ -54,7 +56,6 @@ public class GPTEventSourceListener extends EventSourceListener {
         if (data.equals("[DONE]")) {
             log.info("回答完成：" + last);
             onComplate.accept(last);
-            SseHelper.complete(sseEmitter);
             return;
         }
 
@@ -65,14 +66,18 @@ public class GPTEventSourceListener extends EventSourceListener {
         if (text != null) {
             last += text;
             log.info(last);
-            sseEmitter.send(delta);
+            try {
+                this.session.getBasicRemote().sendText(delta.getContent());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
 
     @Override
     public void onClosed(EventSource eventSource) {
-        SseHelper.complete(sseEmitter);
+        log.info("Event Source onClosed");
     }
 
 
@@ -89,6 +94,5 @@ public class GPTEventSourceListener extends EventSourceListener {
             log.error("OpenAI  sse连接异常data：{}，异常：{}", response, t);
         }
         eventSource.cancel();
-        SseHelper.complete(sseEmitter);
     }
 }

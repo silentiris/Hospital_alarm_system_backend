@@ -43,8 +43,4 @@ public class GptController {
         return CommonResult.success(text);
     }
 
-    @PostMapping("/sse")
-    public SseEmitter SseChat(@Valid @RequestBody ChatParam param){
-        return gptService.getSSEmitter(param.getId(),param.getMessage());
-    }
 }

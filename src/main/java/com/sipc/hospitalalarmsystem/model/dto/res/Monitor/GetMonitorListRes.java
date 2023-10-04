@@ -52,7 +52,9 @@ public class GetMonitorListRes {
         this.running = monitor.getRunning();
         this.video = monitor.getStreamLink();
         this.border = new ArrayList<>();
-        this.border.add(new MonitorBorder(monitor));
+        if (!(monitor.getLeftX()==null || monitor.getLeftY()==null || monitor.getRightX()==null || monitor.getRightY()==null)){
+            this.border.add(new MonitorBorder(monitor));
+        }
         this.ability = new ArrayList<>();
         this.ability.add(new MonitorAbility(1,monitor.getDangerArea()));
         this.ability.add(new MonitorAbility(2,monitor.getWave()));

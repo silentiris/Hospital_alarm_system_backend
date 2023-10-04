@@ -15,8 +15,12 @@ public class KeyManager implements ApplicationRunner {
 
     private static CircularBlockingQueue<String> keyQueue = new CircularBlockingQueue<>();
 
-    @Autowired
     KeyConfig config;
+
+    @Autowired
+    public KeyManager(KeyConfig config){
+        this.config = config;
+    }
 
     public synchronized String getKey() {
 

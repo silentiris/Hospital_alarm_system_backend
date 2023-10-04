@@ -31,15 +31,17 @@ public interface AlarmDao extends BaseMapper<Alarm> {
             "    monitor.`name` FROM alarm_info\n" +
             "    INNER JOIN monitor ON alarm_info.monitor_id = monitor.id \n" +
             "    INNER JOIN case_type_info ON alarm_info.case_type = case_type_info.id " +
-            "      WHERE 1=1 " +
+            "WHERE 1=1 " +
             "<if test='caseType != null'>AND CASE_TYPE = #{caseType}</if>" +
             "<if test='status != null'>AND STATUS = #{status}</if>" +
             "<if test='warningLevel != null'>AND WARNING_LEVEL = #{warningLevel}</if>" +
             "<if test='time1 != null and time2 != null'>AND CREATE_TIME BETWEEN #{time1} AND #{time2}</if>" +
             "<if test='time1 != null and time2 == null'>AND CREATE_TIME >= #{time1}</if>" +
             "<if test='time1 == null and time2 != null'>AND CREATE_TIME &lt;= #{time2}</if>" +
+            "ORDER BY alarm_info.warning_level DESC, alarm_info.create_time DESC " +  // Here is the sorting clause
             "LIMIT #{pageOffset}, #{pageSize}" +
             "</script>")
+
     List<SqlGetAlarm> selectByCondition(@Param("pageOffset") Integer pageOffset,
                                         @Param("pageSize") Integer pageSize,
                                         @Param("caseType") String caseType,

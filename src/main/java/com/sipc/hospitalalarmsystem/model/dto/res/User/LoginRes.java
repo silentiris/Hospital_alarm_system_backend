@@ -12,6 +12,12 @@ public class LoginRes {
 
     private Integer id;
 
+    private String name;
+
+    private String sex;
+
+    private String phone;
+
     private Integer role;
 
     private String token;

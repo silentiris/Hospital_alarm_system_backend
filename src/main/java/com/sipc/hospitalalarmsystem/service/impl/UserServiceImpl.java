@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService {
 
     @Override
-    public String login(String username, String password) {
+    public String login(String phone, String password) {
         password = MD5Util.MD5Encode(password);
-        User user = getOne(new QueryWrapper<User>().eq("user_name", username).eq("password", password));;
+        User user = getOne(new QueryWrapper<User>().eq("phone", phone).eq("password", password));
         if (user != null) {
             return JwtUtils.signUser(user);
         }
@@ -57,6 +57,38 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
             return true;
         }catch (Exception e){
             log.error("修改密码失败");
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean updateName(Integer id, String name){
+        User user = getById(id);
+        if (user == null){
+            return false;
+        }
+        user.setUserName(name);
+        try{
+            updateById(user);
+            return true;
+        }catch (Exception e){
+            log.error("修改用户名失败");
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean updateSex(Integer id,Integer sex){
+        User user = getById(id);
+        if (user == null){
+            return false;
+        }
+        user.setSex(sex == 0?"男":"女");
+        try{
+            updateById(user);
+            return true;
+        }catch (Exception e){
+            log.error("修改性别失败："+e.getMessage());
             return false;
         }
     }

@@ -6,9 +6,13 @@ package com.sipc.hospitalalarmsystem.service;
  */
 public interface UserService {
 
-    String login(String username, String password);
+    String login(String phone, String password);
 
     Boolean register(String username, String password, Integer role);
 
     Boolean updatePassword(Integer id, String oldPassword, String newPassword);
+
+    Boolean updateName(Integer id, String name);
+
+    Boolean updateSex(Integer id,Integer sex);
 }

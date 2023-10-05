@@ -103,4 +103,12 @@ public class MonitorController {
         }
         return CommonResult.success(img);
     }
+
+    @PostMapping("/switch/{id}")
+    public CommonResult<BlankRes> switchMonitor(@PathVariable @NotNull Integer id){
+        if (!monitorService.switchMonitor(id)){
+            return CommonResult.fail("开启或关闭失败");
+        }
+        return CommonResult.success("开启或关闭成功");
+    }
 }

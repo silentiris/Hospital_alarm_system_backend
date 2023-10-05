@@ -20,5 +20,7 @@ public interface MonitorService {
 
     String getMonitorImg(Integer id);
 
+    Boolean switchMonitor(Integer id);
+
     Boolean deleteMonitor(Integer id);
 }

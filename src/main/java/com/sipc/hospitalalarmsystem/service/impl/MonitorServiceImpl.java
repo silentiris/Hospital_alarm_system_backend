@@ -140,4 +140,15 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
             return null;
         }
     }
+
+    @Override
+    public Boolean switchMonitor(Integer id){
+        try{
+            this.baseMapper.MonitorRunningSwitch(id);
+            return true;
+        }catch (Exception e){
+            log.error("切换监控失败");
+            return false;
+        }
+    }
 }

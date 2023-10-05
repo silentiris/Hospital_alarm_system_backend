@@ -18,7 +18,6 @@ public class JwtUtils {
         return JWT.create()
                 .withClaim("id",user.getId())
                 .withClaim("role", user.getRole())
-                .withClaim("userName", user.getUserName())
                 .withExpiresAt(expireDate)
                 .sign(Algorithm.HMAC256(SECRET));
     }
@@ -43,7 +42,6 @@ public class JwtUtils {
         DecodedJWT decodedJWT = JWT.decode(token);
         User user = new User();
         user.setId(decodedJWT.getClaim("id").asInt());
-        user.setUserName(decodedJWT.getClaim("userName").asString());
         user.setRole(decodedJWT.getClaim("role").asInt());
         return user;
     }

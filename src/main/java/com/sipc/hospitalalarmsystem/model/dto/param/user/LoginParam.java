@@ -9,8 +9,8 @@ import lombok.Data;
  */
 @Data
 public class LoginParam {
-    @NotNull(message = "username不能为空")
-    public String username;
+    @NotNull(message = "phone不能为空")
+    public String phone;
 
     @NotNull(message = "password不能为空")
     public String password;

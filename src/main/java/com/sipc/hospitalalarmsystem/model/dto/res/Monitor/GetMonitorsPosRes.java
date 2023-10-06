@@ -22,6 +22,7 @@ public class GetMonitorsPosRes {
             this.leader = monitor.getLeader();
             this.alarmCnt = monitor.getAlarmCnt();
             this.area = monitor.getArea();
+            this.running = monitor.getRunning();
         }
         private Integer id;
         private String name;
@@ -30,6 +31,7 @@ public class GetMonitorsPosRes {
         private Integer alarmCnt;
         private Double latitude;
         private Double longitude;
+        private Boolean running;
     }
 
     public GetMonitorsPosRes(List<Monitor> monitorList){

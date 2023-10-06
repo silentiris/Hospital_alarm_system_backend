@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -33,6 +35,13 @@ import java.util.function.Consumer;
 @Service
 @ServerEndpoint(value = "/api/v1/gpt/ws/{token}")
 public class WebsocketUtil {
+
+    private static final int MAX_RETRIES = 3;
+
+    private static Map<String, Integer> retryCounts = new HashMap<>();
+
+    public static Map<String,String> localMessage = new HashMap<>();
+
     private static ConcurrentHashMap<String, WebsocketUtil> webSocketMap = new ConcurrentHashMap<>();
     private Session session;
     @Setter
@@ -57,8 +66,25 @@ public class WebsocketUtil {
     }
 
     @OnMessage
-    public void onMessage(String message,Session session) {
+    public void onMessage(String message,Session session) throws IOException {
         log.info("WebSocket received message: " + message);
+        //存储发来的消息
+        localMessage.put(session.getId(),message);
+        requestAndSendData(message, session);
+    }
+
+    public static void requestAndSendData(String message, Session session) throws IOException {
+
+        int currentRetry = retryCounts.getOrDefault(session.getId(), 0);
+
+        if (currentRetry >= MAX_RETRIES) {
+            log.error("Max retries reached for session: " + session.getId());
+            retryCounts.remove(session.getId());
+            session.getBasicRemote().sendText("Max retries reached");
+            return;
+        }
+
+
         ChatParam param = new ChatParam();
         param.setMessage(message);
         param.setId(session.getId());
@@ -82,7 +108,8 @@ public class WebsocketUtil {
             add(session.getId(), Message.ofAssistant(msg));
         });
         chatGPTStream.streamChatCompletion(messages, listener);
-        log.info("开始回复："+session.getId());
+
+        log.info("开始回复："+ session.getId());
     }
 
     @OnError
@@ -95,7 +122,11 @@ public class WebsocketUtil {
         log.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
     }
 
-    public List<Message> get(String id) {
+    public static void clearContext(String id) {
+        context.remove(id);
+    }
+
+    public static List<Message> get(String id) {
         List<Message> messages = context.get(id);
         if (messages == null) {
             messages = new ArrayList<>();
@@ -105,7 +136,7 @@ public class WebsocketUtil {
         return messages;
     }
 
-    public void add(String id, Message message) {
+    public static void add(String id, Message message) {
         List<Message> messages = context.get(id);
         if (messages == null) {
             messages = new ArrayList<>();
@@ -113,6 +144,10 @@ public class WebsocketUtil {
         }
 
         messages.add(message);
+    }
+
+    public static void retryCountPlus(Session session){
+        retryCounts.put(session.getId(), retryCounts.getOrDefault(session.getId(), 0) + 1);
     }
 }
 

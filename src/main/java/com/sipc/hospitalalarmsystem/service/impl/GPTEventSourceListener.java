@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.plexpt.chatgpt.entity.chat.ChatCompletionResponse;
 import com.plexpt.chatgpt.entity.chat.Message;
 import com.sipc.hospitalalarmsystem.util.SseHelper;
+import com.sipc.hospitalalarmsystem.util.WebsocketUtil;
 import jakarta.websocket.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import static com.sipc.hospitalalarmsystem.util.WebsocketUtil.*;
 
 /**
  * 描述：OpenAIEventSourceListener
@@ -89,6 +92,10 @@ public class GPTEventSourceListener extends EventSourceListener {
         }
         ResponseBody body = response.body();
         if (Objects.nonNull(body)) {
+            WebsocketUtil.clearContext(session.getId());
+            //重试
+            retryCountPlus(session);
+            WebsocketUtil.requestAndSendData(WebsocketUtil.localMessage.get(session.getId()),session);
             log.error("OpenAI  sse连接异常data：{}，异常：{}", body.string(), t);
         } else {
             log.error("OpenAI  sse连接异常data：{}，异常：{}", response, t);

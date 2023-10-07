@@ -11,21 +11,30 @@ import com.sipc.hospitalalarmsystem.service.RecordService;
 import com.plexpt.chatgpt.ChatGPT;
 
 
-import com.sipc.hospitalalarmsystem.util.HttpUtils;
-import com.sipc.hospitalalarmsystem.util.JacksonUtils;
-import com.sipc.hospitalalarmsystem.util.JwtUtils;
-import com.sipc.hospitalalarmsystem.util.OssUtil;
+import com.sipc.hospitalalarmsystem.util.*;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.assertj.core.internal.Bytes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.sipc.hospitalalarmsystem.controller.AlarmController.SqlGetAlarmRes2GetAlarmRes;
 
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class HospitalAlarmSystemApplicationTests {
     @Autowired
     private RecordService recordService;
@@ -35,27 +44,105 @@ class HospitalAlarmSystemApplicationTests {
     private OssUtil ossUtil;
 
     @Test
-    void contextLoads() throws InterruptedException, JsonProcessingException {
-        Map<String,String> paramMap = new HashMap<>();
-        paramMap.put("cid",""); //cid不填默认全发
-        paramMap.put("title","报警通知");
-        paramMap.put("content","您有一条新的报警信息，请及时处理");
-        Map<String,String> optMap = new HashMap<>();
-        Map<String,String> catMap = new HashMap<>();
-        catMap.put("/message/android/category","WORK");
-        optMap.put("HW", catMap.toString());
-        Map<String,Object> dateMap = new HashMap<>();
-        dateMap.put("date1",1);
-        dateMap.put("date2",1);
-        paramMap.put("options",optMap.toString());
-        paramMap.put("date",dateMap.toString());
-        Random random = new Random();
-        String randomString = random.ints(10, 0, 10)
-                .mapToObj(Integer::toString)
-                .collect(Collectors.joining());
-        paramMap.put("request_id",randomString);
-        System.out.println(HttpUtils.postJson("https://fc-mp-e0386718-0219-4138-80a9-902540e76f67.next.bspapp.com/notice", new ObjectMapper().writeValueAsString(paramMap)));
+    void contextLoads() throws InterruptedException {
+        System.out.println(ossUtil.getClipLinkByUuid("51987bdb-1ab0-4e61-8fc1-9257de192a7b"));
     }
 
+    @Test
+    void test1() {
+//        Proxy proxy = Proxys.http("127.0.0.1", 1081);
+        //socks5 代理
+        // Proxy proxy = Proxys.socks5("127.0.0.1", 1080);
+
+        ChatGPT chatGPT = ChatGPT.builder()
+                .apiKey("")
+                .apiHost("https://api.openai.com/") //反向代理地址
+                .build()
+                .init();
+
+        String res = chatGPT.chat("写一段七言绝句诗，题目是：火锅！");
+        System.out.println(res);
+
+    }
+
+    @Test
+    void test2(){
+        String token = "sipc115";
+         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15000)
+                .setConnectionRequestTimeout(15000)
+                .setSocketTimeout(15000)
+                .setRedirectsEnabled(true)
+                .build();
+        String url = "http://192.168.115.76:8000/api/v1/monitor-device/image";
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet get = new HttpGet(url);
+        get.setConfig(requestConfig);
+        get.setHeader("Authorization",token);
+        try (CloseableHttpResponse response = httpClient.execute(get)) {
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new RuntimeException("Failed to download file from " + url + ". Status: " + response.getStatusLine());
+            }
+
+            String res = Base64Util.inputStream2Base64(response.getEntity().getContent());
+            System.out.println(res);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to download file from " + url, e);
+        }
+
+    }
+
+    @Test
+    void test3() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Integer> area = new ArrayList<>();
+        area.add(1);
+        area.add(2);
+        area.add(3);
+        area.add(4);
+        Map<String,Object> m = new HashMap<>();
+        m.put("areaList",area);
+        String json = objectMapper.writeValueAsString(m);
+        System.out.println(json);
+        String response = HttpUtils.postJson("http://"+"192.168.115.76:8000"+"/api/v1/monitor-device/area",json,"sipc115");
+        updateMonitorAreaRes res = JacksonUtils.json2pojo(response, updateMonitorAreaRes.class);
+        System.out.println(response);
+    }
+
+
+
+    @Test
+    void ExcelTest() {
+
+        String fileName = "test.xlsx";
+        EasyExcel.write(fileName, GetAlarmRes.class)
+                .sheet("报警数据")
+                .doWrite(() -> {
+                    List<SqlGetAlarm> alarmRes =  alarmService.queryAlarmList(1, 5000, null, null, null, null, null);
+                    List<GetAlarmRes> res = new ArrayList<>();
+                    for (SqlGetAlarm alarmRe : alarmRes) {
+                        res.add(SqlGetAlarmRes2GetAlarmRes(alarmRe));
+                    }
+                    return res;
+                });
+    }
+
+    @Test
+    void test4()throws Exception{
+        System.out.println(MD5Util.MD5Encode("123456"));
+    }
+
+    @Test
+    void test5() throws Exception {
+        //从本地读图片转IS
+        FileInputStream fis = new FileInputStream(("test.jpg"));
+        int data = fis.read();
+        while(data != -1) {
+            // 处理读取的数据
+            System.out.print((char) data);
+            data = fis.read();
+        }
+        System.out.println(Base64Util.inputStream2Base64(fis));
+        fis.close();
+    }
 
 }

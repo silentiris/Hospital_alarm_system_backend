@@ -57,6 +57,7 @@ public class GPTEventSourceListener extends EventSourceListener {
     public void onEvent(EventSource eventSource, String id, String type, String data) {
         log.info("回答中：{}", data);
         if (data.equals("[DONE]")) {
+            this.session.getBasicRemote().sendText("[DONE]");
             log.info("回答完成：" + last);
             onComplate.accept(last);
             return;

@@ -24,7 +24,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
     public RequestFlaskService requestFlaskService;
 
     @Override
-    @Cacheable(cacheNames = "cache",unless = "#result==null")
+    @Cacheable(value = "cache",key="'getMonitorList'",unless = "#result==null")
     public List<Monitor> getMonitorList() {
         return this.list();
     }

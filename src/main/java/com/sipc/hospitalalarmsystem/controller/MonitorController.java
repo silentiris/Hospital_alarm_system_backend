@@ -43,6 +43,7 @@ public class MonitorController {
         if (sqlMonitors == null) {
             return CommonResult.fail("获取监控列表失败");
         }
+        System.out.println(sqlMonitors);
         List<GetMonitorListRes> getMonitorListResList = new ArrayList<>();
         for (Monitor monitor : sqlMonitors) {
             GetMonitorListRes getMonitorListRes = new GetMonitorListRes(monitor);

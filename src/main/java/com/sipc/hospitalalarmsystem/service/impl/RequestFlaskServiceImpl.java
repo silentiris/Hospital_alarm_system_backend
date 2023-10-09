@@ -54,7 +54,7 @@ public class RequestFlaskServiceImpl implements RequestFlaskService {
     }
 
     @Override
-    @Cacheable(cacheNames = "MonitorImg",key = "#ip",unless = "#result==null")
+    @Cacheable(value = "MonitorImg",key = "#ip",unless = "#result==null")
     public String getMonitorImg(String ip) throws RuntimeException{
         return HttpUtils.GetBase64("http://"+ip+"/api/v1/monitor-device/image",FLASK_TOKEN);
     }

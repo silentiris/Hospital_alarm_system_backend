@@ -17,21 +17,16 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.assertj.core.internal.Bytes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sipc.hospitalalarmsystem.controller.AlarmController.SqlGetAlarmRes2GetAlarmRes;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -110,21 +105,6 @@ class HospitalAlarmSystemApplicationTests {
 
 
 
-    @Test
-    void ExcelTest() {
-
-        String fileName = "test.xlsx";
-        EasyExcel.write(fileName, GetAlarmRes.class)
-                .sheet("报警数据")
-                .doWrite(() -> {
-                    List<SqlGetAlarm> alarmRes =  alarmService.queryAlarmList(1, 5000, null, null, null, null, null);
-                    List<GetAlarmRes> res = new ArrayList<>();
-                    for (SqlGetAlarm alarmRe : alarmRes) {
-                        res.add(SqlGetAlarmRes2GetAlarmRes(alarmRe));
-                    }
-                    return res;
-                });
-    }
 
     @Test
     void test4()throws Exception{

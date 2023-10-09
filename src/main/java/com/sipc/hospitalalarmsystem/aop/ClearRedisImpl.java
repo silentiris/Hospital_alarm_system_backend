@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClearRedisImpl
 {
-    @CacheEvict(cacheNames = "cache",allEntries = true)
+    @CacheEvict(value = "cache",allEntries = true)
     public void deleteCache(){
     }
 }

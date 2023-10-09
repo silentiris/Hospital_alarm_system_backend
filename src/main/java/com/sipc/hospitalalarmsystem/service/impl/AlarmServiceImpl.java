@@ -3,18 +3,24 @@ package com.sipc.hospitalalarmsystem.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sipc.hospitalalarmsystem.dao.AlarmDao;
+import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
+import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.GetHistoryCntRes;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.Alarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
 import com.sipc.hospitalalarmsystem.service.AlarmService;
 import com.sipc.hospitalalarmsystem.service.MonitorService;
+import com.sipc.hospitalalarmsystem.util.OssUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -24,10 +30,12 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
     @Autowired
     MonitorServiceImpl monitorServiceImpl;
 
+    @Autowired
+    OssUtil ossUtil;
+
     @Override
     public Boolean receiveAlarm(Integer cameraID, Integer caseType,String clipLink){
         log.info("receive alarm from camera: "+cameraID+" caseType: "+caseType);
-        //TODO 从OSS获取clip地址
         monitorServiceImpl.getBaseMapper().MonitorAlarmCntPlusOne(cameraID);
         Alarm alarm = new Alarm();
         alarm.setClipLink(clipLink);
@@ -41,16 +49,17 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
 
     @Override
     public SqlGetAlarm getAlarm(Integer alarmId){
-        //TODO 从OSS获取clip地址
-        return this.baseMapper.SqlGetAlarm(alarmId);
+        SqlGetAlarm sqlGetAlarm = this.baseMapper.SqlGetAlarm(alarmId);
+        sqlGetAlarm.setClipLink(ossUtil.getClipLinkByUuid(sqlGetAlarm.getClipLink()));
+        return sqlGetAlarm;
     }
 
 
     public  List<SqlGetAlarm> queryAlarmList(Integer pageNum, Integer pageSize, Integer caseType, Integer status, Integer warningLevel, String time1, String time2) {
-
-
-        //TODO 从OSS获取clip地址
-        List<SqlGetAlarm> alarms = this.baseMapper.selectByCondition(pageNum-1,pageSize,caseType != null?caseType.toString():null, status != null?status.toString():null, warningLevel!=null?warningLevel.toString():null, time1, time2);
+        List<SqlGetAlarm> alarms = this.baseMapper.selectByCondition((pageNum - 1) * pageSize,pageSize,caseType != null?caseType.toString():null, status != null?status.toString():null, warningLevel!=null?warningLevel.toString():null, time1, time2);
+        for (SqlGetAlarm alarm : alarms) {
+            alarm.setClipLink(ossUtil.getClipLinkByUuid(alarm.getClipLink()));
+        }
         //根据warningLevel和时间进行降序排序
         if (alarms.isEmpty())
             return alarms;
@@ -186,12 +195,19 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
 
 
     @Override
+    @Cacheable(cacheNames = "cache",unless = "#result==null")
     public RealTimeAlarmRes getRealTimeAlarmRes(){
         RealTimeAlarmRes realTimeAlarmRes = new RealTimeAlarmRes();
-        realTimeAlarmRes.setAlarmTotal(this.baseMapper.SqlGetAlarmTotal());
-        realTimeAlarmRes.setAlarmCaseTypeTotalList(this.baseMapper.SqlGetAlarmCaseTypeTotal());
+        try{
+            realTimeAlarmRes.setAlarmTotal(this.baseMapper.SqlGetAlarmTotal());
+            realTimeAlarmRes.setAlarmCaseTypeTotalList(this.baseMapper.SqlGetAlarmCaseTypeTotal());
 
-        return realTimeAlarmRes;
+            return realTimeAlarmRes;
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return null;
+        }
+
     }
 
     @Override
@@ -207,6 +223,48 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
     @Override
     public List<TimePeriod> SqlGetCaseTypesWeekHistoryCnt( String date){
         return this.baseMapper.SqlGetCaseTypesWeekHistoryCnt(date);
+    }
+
+    @Override
+    @Cacheable(cacheNames = "cache",unless = "#result==null")
+    public GetHistoryCntRes ServiceGetHistoryCntRes(Integer defer){
+        GetHistoryCntRes getHistoryCntRes = new GetHistoryCntRes();
+        List<TimePeriod> g1;
+        List<TimePeriod> g2;
+        List<TimePeriod> g3;
+        LocalDateTime currentDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(0);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String time = currentDate.format(formatter);
+        if (defer == 1){
+            g1 = this.getDayHistoryCnt(time);
+            getHistoryCntRes.setGraph1(g1);
+            g2 = this.getDayAreasHistoryCnt(time);
+            getHistoryCntRes.setGraph2(g2);
+            g3 = this.SqlGetCaseTypesDayHistoryCnt(time);
+            getHistoryCntRes.setGraph3(g3);
+            return getHistoryCntRes;
+        }
+        else if (defer == 3){
+            g1 = this.getThreeDaysHistoryCnt(time);
+            getHistoryCntRes.setGraph1(g1);
+            g2 = this.getThreeDaysAreasHistoryCnt(time);
+            getHistoryCntRes.setGraph2(g2);
+            g3 = this.SqlGetCaseTypesThreeDaysHistoryCnt(time);
+            getHistoryCntRes.setGraph3(g3);
+            return getHistoryCntRes;
+        }
+        else if (defer == 7){
+            g1 = this.getWeekHistoryCnt(time);
+            getHistoryCntRes.setGraph1(g1);
+            g2 = this.getWeekAreasHistoryCnt(time);
+            getHistoryCntRes.setGraph2(g2);
+            g3 = this.SqlGetCaseTypesWeekHistoryCnt(time);
+            getHistoryCntRes.setGraph3(g3);
+            return getHistoryCntRes;
+        }
+        else{
+            return null;
+        }
     }
 
     private List<TimePeriod> Alignment(List<String> allPeriods,List<TimePeriod> timePeriods){

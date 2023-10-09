@@ -3,18 +3,25 @@ package com.sipc.hospitalalarmsystem.aop;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.util.JwtUtils;
+import com.sipc.hospitalalarmsystem.util.RedisUtil;
 import com.sipc.hospitalalarmsystem.util.TokenThreadLocalUtil;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 @Slf4j
 public class JwtInterceptor implements HandlerInterceptor {
 
+    @Resource
+    RedisUtil redisUtil;
 
+    @Autowired
+    ClearRedisImpl clearRedisImpl;
 
     @Override
     public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
@@ -26,6 +33,11 @@ public class JwtInterceptor implements HandlerInterceptor {
         Pass pass = handlerMethod.getMethodAnnotation(Pass.class);
         if (pass != null) {
             return true;
+        }
+        ClearRedis clearRedis = handlerMethod.getMethodAnnotation(ClearRedis.class);
+        if (clearRedis != null) {
+            //和redis配置类保持一致
+            clearRedisImpl.deleteCache();
         }
         if (null == token || token.isEmpty() || !JwtUtils.verify(token)) {
             response.setCharacterEncoding("UTF-8");

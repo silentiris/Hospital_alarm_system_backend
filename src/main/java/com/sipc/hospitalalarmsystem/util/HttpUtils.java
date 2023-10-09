@@ -1,5 +1,6 @@
 package com.sipc.hospitalalarmsystem.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -30,6 +31,8 @@ import java.util.Objects;
  * @author ZhangYuanqiang
  * @since 2021-06-10
  */
+
+@Slf4j
 public class HttpUtils {
 
     /**
@@ -236,18 +239,19 @@ public class HttpUtils {
      * @param url      下载地址
      */
 
-    public static String GetBase64(String url, String token) throws RuntimeException{
+    public static String GetBase64(String url, String token){
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet get = new HttpGet(url);
         get.setConfig(requestConfig);
         get.setHeader("Authorization",token);
         try (CloseableHttpResponse response = httpClient.execute(get)) {
             if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException("Failed to download file from " + url + ". Status: " + response.getStatusLine());
+                return null;
             }
             return Base64Util.inputStream2Base64(response.getEntity().getContent());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to download file from " + url, e);
+            log.error(e.getMessage());
+            return null;
         }
     }
 

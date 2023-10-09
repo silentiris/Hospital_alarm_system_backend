@@ -14,7 +14,7 @@ public class LoginRes {
 
     private String name;
 
-    private String sex;
+
 
     private String phone;
 

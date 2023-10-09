@@ -59,14 +59,9 @@ public class RedisCacheManagerConfig {
 
     private Map<String, RedisCacheConfiguration> getRedisCacheConfigurationMap() {
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
-        redisCacheConfigurationMap.put("avatar", this.getRedisCacheConfigurationWithTtl(Duration.of(1, ChronoUnit.DAYS)));
-        redisCacheConfigurationMap.put("nickname", this.getRedisCacheConfigurationWithTtl(Duration.of(1, ChronoUnit.DAYS)));
-        redisCacheConfigurationMap.put("file", this.getRedisCacheConfigurationWithTtl(Duration.of(2, ChronoUnit.DAYS)));
-        redisCacheConfigurationMap.put("user", this.getRedisCacheConfigurationWithTtl(Duration.of(2, ChronoUnit.DAYS)));
-        redisCacheConfigurationMap.put("unreadMsgNum", this.getRedisCacheConfigurationWithTtl(Duration.ZERO));
-        redisCacheConfigurationMap.put("item", this.getRedisCacheConfigurationWithTtl(Duration.of(1, ChronoUnit.DAYS)));
-        redisCacheConfigurationMap.put("post", this.getRedisCacheConfigurationWithTtl(Duration.of(1, ChronoUnit.DAYS)));
-        redisCacheConfigurationMap.put("postPic", this.getRedisCacheConfigurationWithTtl(Duration.of(6, ChronoUnit.DAYS)));
+        redisCacheConfigurationMap.put("MonitorImg", this.getRedisCacheConfigurationWithTtl(Duration.of(1, ChronoUnit.HOURS)));
+        redisCacheConfigurationMap.put("cache",this.getRedisCacheConfigurationWithTtl(Duration.of(1, ChronoUnit.HOURS)));
+        redisCacheConfigurationMap.put("clipLink",this.getRedisCacheConfigurationWithTtl(Duration.of(364, ChronoUnit.DAYS)));
         return redisCacheConfigurationMap;
     }
 

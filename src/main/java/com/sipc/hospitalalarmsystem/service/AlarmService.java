@@ -1,5 +1,6 @@
 package com.sipc.hospitalalarmsystem.service;
 
+import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.GetHistoryCntRes;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.RealTimeAlarmRes;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.SqlGetAlarm;
 import com.sipc.hospitalalarmsystem.model.po.Alarm.TimePeriod;
@@ -37,8 +38,7 @@ public interface AlarmService {
 
     List<TimePeriod> SqlGetCaseTypesWeekHistoryCnt( String date);
 
-
     RealTimeAlarmRes getRealTimeAlarmRes();
 
-
+    GetHistoryCntRes ServiceGetHistoryCntRes(Integer defer);
 }

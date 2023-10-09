@@ -1,5 +1,6 @@
 package com.sipc.hospitalalarmsystem.controller;
 
+import com.sipc.hospitalalarmsystem.aop.ClearRedis;
 import com.sipc.hospitalalarmsystem.aop.Pass;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.Monitor.CreateMonitorParam;
@@ -74,6 +75,7 @@ public class MonitorController {
     }
 
     @PostMapping("/update")
+    @ClearRedis
     public CommonResult<BlankRes> updateMonitor(@Valid @RequestBody UpdateMonitorParam updateMonitorParam){
         if (!monitorService.updateMonitor(updateMonitorParam)){
             return CommonResult.fail("更新失败");
@@ -83,6 +85,7 @@ public class MonitorController {
 
     @PostMapping("/flask/create")
     @Pass
+    @ClearRedis
     public CommonResult<CreateMonitorRes> createMonitor(@Valid @RequestBody CreateMonitorParam createMonitorParam){
             CreateMonitorRes createMonitorRes = new CreateMonitorRes();
             Integer id = monitorService.createMonitor(createMonitorParam);
@@ -105,6 +108,7 @@ public class MonitorController {
     }
 
     @PostMapping("/switch/{id}")
+    @ClearRedis
     public CommonResult<BlankRes> switchMonitor(@PathVariable @NotNull Integer id){
         if (!monitorService.switchMonitor(id)){
             return CommonResult.fail("开启或关闭失败");

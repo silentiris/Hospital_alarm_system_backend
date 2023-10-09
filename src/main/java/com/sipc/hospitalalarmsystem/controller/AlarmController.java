@@ -3,6 +3,7 @@ package com.sipc.hospitalalarmsystem.controller;
 import com.alibaba.excel.EasyExcel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sipc.hospitalalarmsystem.aop.ClearRedis;
 import com.sipc.hospitalalarmsystem.model.dto.CommonResult;
 import com.sipc.hospitalalarmsystem.model.dto.param.alarm.UpdateAlarmParam;
 import com.sipc.hospitalalarmsystem.model.dto.res.Alarm.*;
@@ -14,15 +15,14 @@ import com.sipc.hospitalalarmsystem.util.HttpUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.javacpp.presets.opencv_core;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -38,6 +38,7 @@ public class AlarmController {
     @Autowired
     AlarmService alarmService;
     @PostMapping("/receive")
+    @ClearRedis
     public CommonResult<BlankRes> receiveAlarm(@RequestParam(value = "cameraId",required = true) int cameraId,
                                                @RequestParam(value = "caseType",required = true) int caseType,
                                                @RequestParam(value = "clipId",required = true) String clipId) {
@@ -81,7 +82,7 @@ public class AlarmController {
         if (alarm == null)
             return CommonResult.fail("查询失败");
 
-        return CommonResult.success(SqlGetAlarmRes2GetAlarmRes(alarm));
+        return CommonResult.success(new GetAlarmRes(alarm));
     }
 
     @GetMapping("/query/cnt")
@@ -96,43 +97,12 @@ public class AlarmController {
     }
 
     @GetMapping("/query/cnt/history")
-    public CommonResult<GetHistoryCntRes> getHistoryCntRes(@RequestParam(value = "defer") Integer defer) {
-        GetHistoryCntRes getHistoryCntRes = new GetHistoryCntRes();
-        List<TimePeriod> g1;
-        List<TimePeriod> g2;
-        List<TimePeriod> g3;
-        LocalDateTime currentDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).minusDays(0);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String time = currentDate.format(formatter);
-        if (defer == 1){
-            g1 = alarmService.getDayHistoryCnt(time);
-            getHistoryCntRes.setGraph1(g1);
-            g2 = alarmService.getDayAreasHistoryCnt(time);
-            getHistoryCntRes.setGraph2(g2);
-            g3 = alarmService.SqlGetCaseTypesDayHistoryCnt(time);
-            getHistoryCntRes.setGraph3(g3);
-        }
-        else if (defer == 3){
-            g1 = alarmService.getThreeDaysHistoryCnt(time);
-            getHistoryCntRes.setGraph1(g1);
-            g2 = alarmService.getThreeDaysAreasHistoryCnt(time);
-            getHistoryCntRes.setGraph2(g2);
-            g3 = alarmService.SqlGetCaseTypesThreeDaysHistoryCnt(time);
-            getHistoryCntRes.setGraph3(g3);
-        }
-        else if (defer == 7){
-            g1 = alarmService.getWeekHistoryCnt(time);
-            getHistoryCntRes.setGraph1(g1);
-            g2 = alarmService.getWeekAreasHistoryCnt(time);
-            getHistoryCntRes.setGraph2(g2);
-            g3 = alarmService.SqlGetCaseTypesWeekHistoryCnt(time);
-            getHistoryCntRes.setGraph3(g3);
-        }
-        else{
-            return CommonResult.fail("参数错误");
-        }
-
-        return CommonResult.success(getHistoryCntRes);
+    public CommonResult<GetHistoryCntRes> getHistoryCnt(@RequestParam(value = "defer") Integer defer) {
+        GetHistoryCntRes getHistoryCntRes = alarmService.ServiceGetHistoryCntRes(defer);
+        if (getHistoryCntRes == null)
+            return CommonResult.fail("查询失败");
+        else
+            return CommonResult.success(getHistoryCntRes);
     }
 
 
@@ -153,7 +123,7 @@ public class AlarmController {
         List<GetAlarmRes> res = new ArrayList<>();
 
         for(SqlGetAlarm alarm : alarmList){
-            res.add(SqlGetAlarmRes2GetAlarmRes(alarm));
+            res.add(new GetAlarmRes(alarm));
         }
         QueryAlarmListRes queryAlarmListRes = new QueryAlarmListRes();
         queryAlarmListRes.setCount(res.size());
@@ -162,6 +132,7 @@ public class AlarmController {
     }
 
     @PutMapping("/update")
+    @ClearRedis
     public CommonResult<BlankRes> updateAlarm(@Valid @RequestBody UpdateAlarmParam updateAlarmParam) {
         if (alarmService.updateAlarm(updateAlarmParam.getId(), updateAlarmParam.getStatus(), updateAlarmParam.getProcessingContent()))
             return CommonResult.success("更新成功");
@@ -170,6 +141,7 @@ public class AlarmController {
     }
 
     @DeleteMapping("/{alarmId}")
+    @ClearRedis
     public CommonResult<BlankRes> deleteAlarm(@PathVariable @NotNull(message = "alarmId不能为空") Integer alarmId) {
         if (alarmService.deleteAlarm(alarmId))
             return CommonResult.success("删除成功");
@@ -178,6 +150,7 @@ public class AlarmController {
     }
 
     @GetMapping("/realtime")
+
     public CommonResult<RealTimeAlarmRes> getRealTimeAlarm() {
         RealTimeAlarmRes realTimeAlarmRes = alarmService.getRealTimeAlarmRes();
         if (realTimeAlarmRes == null)
@@ -196,7 +169,7 @@ public class AlarmController {
                     List<SqlGetAlarm> alarmRes =  alarmService.queryAlarmList(1, 5000, null, null, null, null, null);
                     List<GetAlarmRes> res = new ArrayList<>();
                     for (SqlGetAlarm alarmRe : alarmRes) {
-                        res.add(SqlGetAlarmRes2GetAlarmRes(alarmRe));
+                        res.add(new GetAlarmRes(alarmRe));
                     }
                     return res;
                 });
@@ -210,18 +183,4 @@ public class AlarmController {
         return ResponseEntity.ok().body(bytes);
         }
 
-    static public GetAlarmRes SqlGetAlarmRes2GetAlarmRes(SqlGetAlarm sqlGetAlarm){
-        GetAlarmRes getAlarmRes = new GetAlarmRes();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd hh:mm");
-        getAlarmRes.setId(sqlGetAlarm.getId());
-        getAlarmRes.setName(sqlGetAlarm.getName());
-        getAlarmRes.setEventName(sqlGetAlarm.getCaseTypeName());
-        getAlarmRes.setLevel(sqlGetAlarm.getWarningLevel());
-        getAlarmRes.setDate(sdf.format(sqlGetAlarm.getCreateTime()));
-        getAlarmRes.setDepartment(sqlGetAlarm.getArea());
-        getAlarmRes.setDeal(sqlGetAlarm.getStatus() ? "已处理":"未处理");
-        getAlarmRes.setContent(sqlGetAlarm.getProcessingContent());
-        getAlarmRes.setVideo(sqlGetAlarm.getClipLink());
-        return getAlarmRes;
-    }
 }

@@ -102,7 +102,7 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         <!-- Easy-Excel -->
-        <dependency>
+        <dependency>-4
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
             <version>3.3.2</version>

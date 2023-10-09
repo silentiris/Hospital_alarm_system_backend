@@ -14,5 +14,5 @@ public interface UserService {
 
     Boolean updateName(Integer id, String name);
 
-    Boolean updateSex(Integer id,Integer sex);
+
 }

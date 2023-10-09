@@ -43,7 +43,7 @@ public class UserController {
         LoginRes loginRes = new LoginRes();
         loginRes.setName(user.getUserName());
         loginRes.setPhone(user.getPhone());
-        loginRes.setSex(user.getSex());
+
         loginRes.setRole(user.getRole());
         loginRes.setToken(token);
         loginRes.setId(user.getId());
@@ -74,12 +74,9 @@ public class UserController {
         return CommonResult.fail("密码错误");
     }
 
-    @PostMapping("/update/name")
-    public CommonResult<BlankRes> updateName(@RequestParam("name") @NotNull String name) {
+    @PostMapping("/update/name/{name}")
+    public CommonResult<BlankRes> updateName(@PathVariable @NotNull String name) {
         User user = JwtUtils.getUserByToken(TokenThreadLocalUtil.getInstance().getToken());
-        if (user == null) {
-            return CommonResult.fail("token错误");
-        }
         if (userService.updateName(user.getId(), name)) {
             return CommonResult.success("修改成功");
         }
@@ -87,15 +84,5 @@ public class UserController {
         return CommonResult.fail("修改失败");
     }
 
-    @PostMapping("/update/sex")
-    public CommonResult<BlankRes> updateSex(@RequestParam("sex") @NotNull Integer sex){
-        User user = JwtUtils.getUserByToken(TokenThreadLocalUtil.getInstance().getToken());
-        if (user == null){
-            return CommonResult.fail("token错误");
-        }
-        if (userService.updateSex(user.getId(), sex)){
-            return CommonResult.success("修改成功");
-        }
-        return CommonResult.fail("修改失败");
-    }
+
 }

@@ -77,20 +77,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         }
     }
 
-    @Override
-    public Boolean updateSex(Integer id,Integer sex){
-        User user = getById(id);
-        if (user == null){
-            return false;
-        }
-        user.setSex(sex == 0?"男":"女");
-        try{
-            updateById(user);
-            return true;
-        }catch (Exception e){
-            log.error("修改性别失败："+e.getMessage());
-            return false;
-        }
-    }
+
 
 }

@@ -6,6 +6,7 @@ import com.sipc.hospitalalarmsystem.service.RequestFlaskService;
 import com.sipc.hospitalalarmsystem.util.HttpUtils;
 import com.sipc.hospitalalarmsystem.util.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class RequestFlaskServiceImpl implements RequestFlaskService {
     }
 
     @Override
+    @Cacheable(cacheNames = "MonitorImg",key = "#ip",unless = "#result==null")
     public String getMonitorImg(String ip) throws RuntimeException{
         return HttpUtils.GetBase64("http://"+ip+"/api/v1/monitor-device/image",FLASK_TOKEN);
     }

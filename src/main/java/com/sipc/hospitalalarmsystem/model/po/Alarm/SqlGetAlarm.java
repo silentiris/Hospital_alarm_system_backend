@@ -20,5 +20,6 @@ public class SqlGetAlarm {
     private Boolean status;
     private String processingContent;
     private String area;
+    private String phone;
 
 }

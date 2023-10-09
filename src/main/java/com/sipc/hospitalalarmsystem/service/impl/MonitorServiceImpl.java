@@ -10,6 +10,7 @@ import com.sipc.hospitalalarmsystem.service.RequestFlaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.presets.opencv_core;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
     public RequestFlaskService requestFlaskService;
 
     @Override
+    @Cacheable(cacheNames = "cache",unless = "#result==null")
     public List<Monitor> getMonitorList() {
         return this.list();
     }
@@ -74,6 +76,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
     public Boolean updateMonitor(UpdateMonitorParam updateMonitorParam){
         //TODO 改字段要改这里
         Monitor monitor = new Monitor();
+        Boolean dangerArea = updateMonitorParam.getLeftX() != null && updateMonitorParam.getLeftY() != null && updateMonitorParam.getRightX() != null && updateMonitorParam.getRightY() != null;
         monitor.setId(updateMonitorParam.getId());
         monitor.setName(updateMonitorParam.getName());
         monitor.setArea(updateMonitorParam.getArea());
@@ -85,14 +88,13 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
         monitor.setSmoke(updateMonitorParam.getSmoke());
         monitor.setPunch(updateMonitorParam.getPunch());
         monitor.setWave(updateMonitorParam.getWave());
-        monitor.setDangerArea(updateMonitorParam.getDangerArea());
+        monitor.setDangerArea(dangerArea);
         monitor.setStreamLink(updateMonitorParam.getIp());
         monitor.setLeftX(updateMonitorParam.getLeftX());
         monitor.setLeftY(updateMonitorParam.getLeftY());
         monitor.setRightX(updateMonitorParam.getRightX());
         monitor.setRightY(updateMonitorParam.getRightY());
         try{
-            //TODO 向flask调用更新接口
             //更改Flask区域
             List<Integer> area = new ArrayList<>();
             area.add(updateMonitorParam.getLeftX());
@@ -107,7 +109,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
             ability.add(updateMonitorParam.getFall());
             ability.add(updateMonitorParam.getPunch());
             ability.add(updateMonitorParam.getWave());
-            ability.add(updateMonitorParam.getDangerArea());
+            ability.add(dangerArea);
             if (!requestFlaskService.updateMonitorArea(updateMonitorParam.getIp(),area) && !requestFlaskService.updateMonitorAbility(updateMonitorParam.getIp(),ability)){
                 return false;
             }

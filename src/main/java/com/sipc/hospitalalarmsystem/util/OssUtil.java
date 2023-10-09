@@ -20,7 +20,7 @@ public class OssUtil {
      * @return {@link String}
      */
 
-    @Cacheable(cacheNames = "clipLink", key = "#uuid")
+    @Cacheable(value = "clipLink", key = "#uuid")
     public String getClipLinkByUuid(String uuid) {
         return ossConfig.cosClient().generatePresignedUrl("hospital-alarm-1318141347",
                 uuid + ".flv",

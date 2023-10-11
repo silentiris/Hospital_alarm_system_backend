@@ -1,5 +1,6 @@
 package com.sipc.hospitalalarmsystem.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sipc.hospitalalarmsystem.dao.MonitorDao;
 import com.sipc.hospitalalarmsystem.model.dto.param.Monitor.CreateMonitorParam;
@@ -152,5 +153,20 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
             log.error("切换监控失败");
             return false;
         }
+    }
+
+    @Override
+    public Boolean updateLeaders(String oldName,String newName){
+        LambdaUpdateWrapper<Monitor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Monitor::getLeader, oldName)
+                .set(Monitor::getLeader, newName);
+        try{
+            update(updateWrapper);
+            return true;
+        }catch (Exception e){
+            log.error("更新监控失败");
+            return false;
+        }
+
     }
 }

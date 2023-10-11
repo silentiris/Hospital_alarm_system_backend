@@ -22,5 +22,7 @@ public interface MonitorService {
 
     Boolean switchMonitor(Integer id);
 
+    Boolean updateLeaders(String oldName,String newName);
+
     Boolean deleteMonitor(Integer id);
 }

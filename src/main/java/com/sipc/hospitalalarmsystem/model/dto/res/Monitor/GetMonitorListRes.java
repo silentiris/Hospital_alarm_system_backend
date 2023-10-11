@@ -50,7 +50,7 @@ public class GetMonitorListRes {
         this.department = monitor.getArea();
         this.leader = monitor.getLeader();
         this.running = monitor.getRunning();
-        this.video = monitor.getStreamLink();
+        this.video = "http://101.43.254.115:1975/flv?port=1985&app=live&stream=test"+monitor.getId();
         this.border = new ArrayList<>();
         if (!(monitor.getLeftX()==null || monitor.getLeftY()==null || monitor.getRightX()==null || monitor.getRightY()==null)){
             this.border.add(new MonitorBorder(monitor));

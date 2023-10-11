@@ -8,7 +8,9 @@ import com.sipc.hospitalalarmsystem.service.UserService;
 import com.sipc.hospitalalarmsystem.util.JwtUtils;
 import com.sipc.hospitalalarmsystem.util.MD5Util;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author CZCZCZ
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService {
+
+    @Autowired
+    MonitorServiceImpl monitorService;
 
     @Override
     public String login(String phone, String password) {
@@ -69,12 +74,13 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         }
         user.setUserName(name);
         try{
-            updateById(user);
+            if (monitorService.updateLeaders(user.getUserName(),name) && updateById(user))
             return true;
         }catch (Exception e){
             log.error("修改用户名失败");
             return false;
         }
+        return false;
     }
 
 

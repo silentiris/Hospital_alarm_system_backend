@@ -226,7 +226,7 @@ public class AlarmServiceImpl extends ServiceImpl<AlarmDao, Alarm> implements Al
     }
 
     @Override
-    @Cacheable(value = "cache",key = "'ServiceGetHistoryCntRes'",unless = "#result==null")
+    @Cacheable(value = "cache",key = "'ServiceGetHistoryCntRes'+#defer",unless = "#result==null")
     public GetHistoryCntRes ServiceGetHistoryCntRes(Integer defer){
         GetHistoryCntRes getHistoryCntRes = new GetHistoryCntRes();
         List<TimePeriod> g1;

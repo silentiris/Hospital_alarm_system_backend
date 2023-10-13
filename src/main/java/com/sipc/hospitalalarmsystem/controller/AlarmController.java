@@ -45,7 +45,7 @@ public class AlarmController {
         Map<String,String> paramMap = new HashMap<>();
         paramMap.put("cid",""); //cid不填默认全发
         paramMap.put("title","报警通知");
-        paramMap.put("content","您有一条新的报警信息，请及时处理");
+        paramMap.put("content","您有一条新的报警信息，请及时处理"+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         Map<String,String> optMap = new HashMap<>();
         Map<String,String> catMap = new HashMap<>();
         catMap.put("/message/android/category","WORK");

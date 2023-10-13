@@ -67,14 +67,15 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     }
 
     @Override
-    public Boolean updateName(Integer id, String name){
+    public Boolean updateName(Integer id, String newName){
         User user = getById(id);
         if (user == null){
             return false;
         }
-        user.setUserName(name);
+        String oldName = user.getUserName();
+        user.setUserName(newName);
         try{
-            if (monitorService.updateLeaders(user.getUserName(),name) && updateById(user))
+            if (monitorService.updateLeaders(oldName,newName) && updateById(user))
             return true;
         }catch (Exception e){
             log.error("修改用户名失败");

@@ -16,10 +16,8 @@ public class UpdateMonitorParam {
     private String name;
     private String area;
     private String leader;
-    private String ip;
     private Double longitude;
     private Double latitude;
-//    private Boolean dangerArea;
     private Boolean fall;
     private Boolean flame;
     private Boolean smoke;

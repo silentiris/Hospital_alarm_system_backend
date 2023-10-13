@@ -77,6 +77,7 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
     public Boolean updateMonitor(UpdateMonitorParam updateMonitorParam){
         //TODO 改字段要改这里
         Monitor monitor = new Monitor();
+
         Boolean dangerArea = updateMonitorParam.getLeftX() != null && updateMonitorParam.getLeftY() != null && updateMonitorParam.getRightX() != null && updateMonitorParam.getRightY() != null;
         monitor.setId(updateMonitorParam.getId());
         monitor.setName(updateMonitorParam.getName());
@@ -90,12 +91,12 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
         monitor.setPunch(updateMonitorParam.getPunch());
         monitor.setWave(updateMonitorParam.getWave());
         monitor.setDangerArea(dangerArea);
-        monitor.setStreamLink(updateMonitorParam.getIp());
-        monitor.setLeftX(updateMonitorParam.getLeftX());
-        monitor.setLeftY(updateMonitorParam.getLeftY());
-        monitor.setRightX(updateMonitorParam.getRightX());
-        monitor.setRightY(updateMonitorParam.getRightY());
+        monitor.setLeftX(null);
+        monitor.setLeftY(null);
+        monitor.setRightX(null);
+        monitor.setRightY(null);
         try{
+            String IP = getMonitorIPById(updateMonitorParam.getId());
             //更改Flask区域
             List<Integer> area = new ArrayList<>();
             area.add(updateMonitorParam.getLeftX());
@@ -111,11 +112,28 @@ public class MonitorServiceImpl extends ServiceImpl<MonitorDao,Monitor> implemen
             ability.add(updateMonitorParam.getPunch());
             ability.add(updateMonitorParam.getWave());
             ability.add(dangerArea);
-            if (!requestFlaskService.updateMonitorArea(updateMonitorParam.getIp(),area) && !requestFlaskService.updateMonitorAbility(updateMonitorParam.getIp(),ability)){
+            if (!requestFlaskService.updateMonitorArea(IP,area) && !requestFlaskService.updateMonitorAbility(IP,ability)){
                 return false;
             }
-            updateById(monitor);
-            return true;
+            LambdaUpdateWrapper<Monitor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper
+                    .eq(Monitor::getId, updateMonitorParam.getId())
+                    .set(Monitor::getName, updateMonitorParam.getName())
+                    .set(Monitor::getArea, updateMonitorParam.getArea())
+                    .set(Monitor::getLeader, updateMonitorParam.getLeader())
+                    .set(Monitor::getLatitude, updateMonitorParam.getLatitude())
+                    .set(Monitor::getLongitude, updateMonitorParam.getLongitude())
+                    .set(Monitor::getFall, updateMonitorParam.getFall())
+                    .set(Monitor::getFlame, updateMonitorParam.getFlame())
+                    .set(Monitor::getSmoke, updateMonitorParam.getSmoke())
+                    .set(Monitor::getPunch, updateMonitorParam.getPunch())
+                    .set(Monitor::getWave, updateMonitorParam.getWave())
+                    .set(Monitor::getDangerArea, dangerArea)
+                    .set(Monitor::getLeftX, updateMonitorParam.getLeftX())
+                    .set(Monitor::getLeftY, updateMonitorParam.getLeftY())
+                    .set(Monitor::getRightX, updateMonitorParam.getRightX())
+                    .set(Monitor::getRightY, updateMonitorParam.getRightY());
+            return update(updateWrapper);
         }catch (Exception e){
             log.error("更新监控失败");
             return false;

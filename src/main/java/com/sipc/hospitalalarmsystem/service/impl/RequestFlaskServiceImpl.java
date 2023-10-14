@@ -48,7 +48,7 @@ public class RequestFlaskServiceImpl implements RequestFlaskService {
         mp.put("typeList",ability);
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(mp);
-        String response = HttpUtils.postJson("http://"+ip+"/api/v1/monitor-device/type",json,FLASK_TOKEN);
+        String response = HttpUtils.postJson("https://" +ip+"/api/v1/monitor-device/type",json,FLASK_TOKEN);
         updateMonitorAreaRes res = JacksonUtils.json2pojo(response, updateMonitorAreaRes.class);
         return res.getMsg().equals("success");
     }
@@ -56,6 +56,6 @@ public class RequestFlaskServiceImpl implements RequestFlaskService {
     @Override
     @Cacheable(value = "MonitorImg",key = "#ip",unless = "#result==null")
     public String getMonitorImg(String ip) throws RuntimeException{
-        return HttpUtils.GetBase64("http://"+ip+"/api/v1/monitor-device/image",FLASK_TOKEN);
+        return HttpUtils.GetBase64("https://" +ip+"/api/v1/monitor-device/image",FLASK_TOKEN);
     }
 }

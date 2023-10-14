@@ -34,7 +34,7 @@ public class GetMonitorListRes {
     @Data
     public static class MonitorAbility {
         public MonitorAbility(Integer caseType,Boolean checked){
-            this.name = caseType == 2?"吸烟":caseType == 3?"摔倒":caseType==4?"打拳":caseType == 5?"挥手":"禁区";
+            this.name = caseType==1?"明火":caseType == 2?"吸烟":caseType == 3?"摔倒":caseType==4?"打拳":caseType == 5?"挥手":"禁区";
             this.value = caseType;
             this.checked = checked;
         }
